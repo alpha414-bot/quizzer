@@ -1,10 +1,11 @@
 import * as Sentry from "@sentry/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { QueryClientProvider } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
 import { RouterProvider } from "react-router-dom";
 import { Slide, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./main.css";
 import { Client, router } from "./System/router";
 
@@ -26,8 +27,9 @@ Sentry.init({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={Client}>
+      {/* <PersistQueryClientProvider client={Client} persistOptions={{persister: QueryPersister}}> */}
       <ToastContainer
-        position="top-left"
+        position="bottom-right"
         autoClose={6000}
         limit={3}
         hideProgressBar={false}
@@ -37,11 +39,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme="light"
         transition={Slide}
       />
       <RouterProvider router={router} />
       <ReactQueryDevtools />
+      {/* </PersistQueryClientProvider> */}
     </QueryClientProvider>
   </React.StrictMode>
 );

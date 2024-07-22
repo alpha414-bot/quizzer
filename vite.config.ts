@@ -1,21 +1,24 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), sentryVitePlugin({
-    org: "skala-u3",
-    project: "quizzer"
-  })],
+  plugins: [
+    react(),
+    sentryVitePlugin({
+      org: "skala-u3",
+      project: "quizzer",
+    }),
+  ],
 
   resolve: {
     alias: {
-      "@": "/src"
+      "@": "/src",
     },
   },
 
   build: {
-    sourcemap: true
-  }
-})
+    sourcemap: true,
+  },
+});

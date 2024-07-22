@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/flowbite/**/*.js",
+  ],
   darkMode: "selector",
   important: true,
   theme: {
@@ -10,6 +14,7 @@ export default {
     },
   },
   plugins: [
+    require("flowbite/plugin"),
     function ({ addUtilities, theme, e }) {
       const colors = theme("colors");
       const baseColorUtilities = {};

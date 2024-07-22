@@ -1,9 +1,10 @@
 import Footer from "@/Components/Footer";
-import Navbar from "@/Components/Navbar";
+import NavBarAdmin from "@/Components/NavBarAdmin";
+import { useAuthUser } from "@/System/Module/Hook";
 import React, { useLayoutEffect, useState } from "react";
 import LoadingBar from "react-top-loading-bar";
 
-const App: React.FC<{
+const Admin: React.FC<{
   children: React.ReactNode;
   title: string;
   description?: string;
@@ -11,6 +12,7 @@ const App: React.FC<{
   no_footer?: boolean;
 }> = ({ children, title, description, no_navbar, no_footer }) => {
   const [showLoadingBar, setShowLoadingBar] = useState<boolean>(false);
+  const { data: currentUser } = useAuthUser();
   useLayoutEffect(() => {
     setShowLoadingBar(true);
   }, []);
@@ -26,16 +28,18 @@ const App: React.FC<{
       )}
 
       <meta name="description" content={description} />
-      <title>{title} - Quizzer</title>
-      <div className="px-12">
-        {!no_navbar && <Navbar />}
-        <div id="page" className="relative z-10">
-          <div id="wrapper">{children}</div>
-        </div>
-        {!no_footer && <Footer />}
+      <title>{title} - Admin - Dashboard</title>
+      <div>
+        {!no_navbar && <NavBarAdmin />}
+        <main
+          className={`pt-20 px-4  ${!!currentUser ? "md:ml-64 h-auto" : ""}`}
+        >
+          <div>{children}</div>
+          <div className="">{!no_footer && <Footer />}</div>
+        </main>
       </div>
     </>
   );
 };
 
-export default App;
+export default Admin;

@@ -1,44 +1,58 @@
 import { AuthUserType } from "@/Types/Auth";
 import { auth } from "@/firebase-config";
-import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
-import { useEffect } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { notify } from "../notify";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { onAuthStateChanged } from "firebase/auth";
+import { useCallback, useEffect } from "react";
+import { queryAppMetaData } from "./Query";
 
 export const useAuthUser = () => {
   const queryClient = useQueryClient();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       // for syncing all query data if auth user is changed
-      queryClient.setQueryData("auth_user", user);
+      if (user?.uid) {
+        auth.currentUser?.getIdTokenResult(true).then((token_result) => {
+          queryClient.setQueryData(["auth_user"], {
+            ...user,
+            ...{ claims: token_result.claims },
+          });
+        });
+      } else {
+        queryClient.setQueryData(["auth_user"], null);
+      }
     });
   }, []);
-  return useQuery(
-    "auth_user",
-    (): Promise<AuthUserType> =>
+  return useQuery({
+    queryKey: ["auth_user"],
+
+    queryFn: (): Promise<AuthUserType> =>
       new Promise((resolve, reject) =>
         onAuthStateChanged(auth, (user) => {
           try {
-            if (!user?.uid) {
+            if (user?.uid) {
               // if user is not signed, sign in user anonymously
-              signInAnonymously(auth)
-                .then((new_user) => {
-                  resolve(new_user.user);
-                })
-                .catch((error) => {
-                  notify.error({
-                    title: "Error",
-                    text: "[Error %gBF]: Authentication instance unmet.<br/> Contact administrator or try to login",
-                  }, error);
-                  reject(error);
-                });
+              auth.currentUser?.getIdTokenResult(true).then((token_result) => {
+                resolve({ ...user, ...{ claims: token_result.claims } });
+              });
             } else {
-              resolve(user);
+              resolve(null);
             }
           } catch (error) {
             reject(error);
           }
         })
-      )
-  );
+      ),
+  });
+};
+
+export const useApp = () => {
+  const queryClient = useQueryClient();
+  const snapshotListener = useCallback((data: any) => {
+    queryClient.setQueryData(["app", "metadata"], data);
+    return data;
+  }, []);
+  return useQuery({
+    queryKey: ["app", "metadata"],
+    queryFn: () => queryAppMetaData(snapshotListener),
+  });
 };

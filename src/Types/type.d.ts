@@ -12,6 +12,7 @@ type DropdownOptionsType = {
   value: string;
   description?: string;
 };
+type MiddlewareItems = "auth" | "user" | "guest" | "admin" | "admin_guest";
 interface RouteErrorInterface {
   status: string | number;
   statusText: string;
@@ -26,4 +27,9 @@ interface ProtectedRouteProps extends HtmlHTMLAttributes<HTMLDivElement> {
 interface ToastWrapperProps {
   title?: any;
   text: any;
+}
+
+interface GeneralLoginInterface {
+  user?: string;
+  password?: string;
 }

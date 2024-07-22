@@ -28,14 +28,16 @@ notify.info = (myProps: ToastWrapperProps, toastProps?: ToastProps) =>
 
 notify.error = (
   { title, ...myProps }: ToastWrapperProps,
-  error: unknown,
+  error?: unknown,
   toastProps?: ToastOptions
 ) => {
-  Sentry.captureException({ error: error, title, myProps });
+  if (!!error) {
+    // inform sentry only if error instance is attached
+    Sentry.captureException({ error: error, title, myProps });
+  }
   return toast.error(<ToastWrapper title={title || "Error"} {...myProps} />, {
     ...toastProps,
   });
 };
 
 export { notify };
-
