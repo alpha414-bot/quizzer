@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+exported-dev-data/*
+functions/*
+
 # Sentry Config File
 .env.sentry-build-plugin

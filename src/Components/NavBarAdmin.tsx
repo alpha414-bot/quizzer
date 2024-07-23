@@ -1,10 +1,12 @@
+import { useAuthUser } from "@/System/Module/Hook";
 import { logout } from "@/System/Module/Query";
 import { Link } from "react-router-dom";
 
 const NavBarAdmin = () => {
+  const { data: currentUser } = useAuthUser();
   return (
     <>
-      <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
+      <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-30">
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex justify-start items-center">
             <button
@@ -41,39 +43,14 @@ const NavBarAdmin = () => {
               </svg>
               <span className="sr-only">Toggle sidebar</span>
             </button>
-            <Link to="/admin" className="flex items-center justify-between mr-4">
+            <Link
+              to="dashboard"
+              className="flex items-center justify-between mr-4"
+            >
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
                 Logo is here
               </span>
             </Link>
-            <form action="#" method="GET" className="hidden md:pl-2">
-              <label htmlFor="topbar-search" className="sr-only">
-                Search
-              </label>
-              <div className="relative md:w-96">
-                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="email"
-                  id="topbar-search"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Search"
-                />
-              </div>
-            </form>
           </div>
           <div className="flex items-center lg:order-2">
             <button
@@ -124,8 +101,8 @@ const NavBarAdmin = () => {
                 Notifications
               </div>
               <div>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
                 >
                   <div className="flex-shrink-0">
@@ -159,9 +136,9 @@ const NavBarAdmin = () => {
                       a few moments ago
                     </div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="#"
                   className="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
                 >
                   <div className="flex-shrink-0">
@@ -197,9 +174,9 @@ const NavBarAdmin = () => {
                       10 minutes ago
                     </div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="#"
                   className="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
                 >
                   <div className="flex-shrink-0">
@@ -239,9 +216,9 @@ const NavBarAdmin = () => {
                       44 minutes ago
                     </div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="#"
                   className="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
                 >
                   <div className="flex-shrink-0">
@@ -281,9 +258,9 @@ const NavBarAdmin = () => {
                       1 hour ago
                     </div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="#"
                   className="flex py-3 px-4 hover:bg-gray-100 dark:hover:bg-gray-600"
                 >
                   <div className="flex-shrink-0">
@@ -316,10 +293,10 @@ const NavBarAdmin = () => {
                       3 hours ago
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
-              <a
-                href="#"
+              <Link
+                to="#"
                 className="block py-2 text-md font-medium text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:underline"
               >
                 <div className="inline-flex items-center">
@@ -339,7 +316,7 @@ const NavBarAdmin = () => {
                   </svg>
                   View all
                 </div>
-              </a>
+              </Link>
             </div>
             {/* Apps */}
             <button
@@ -347,7 +324,7 @@ const NavBarAdmin = () => {
               data-dropdown-toggle="apps-dropdown"
               className="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
             >
-              <span className="sr-only">View notifications</span>
+              <span className="sr-only">App List</span>
               {/* Icon */}
               <svg
                 className="w-6 h-6"
@@ -367,9 +344,9 @@ const NavBarAdmin = () => {
                 Apps
               </div>
               <div className="grid grid-cols-3 gap-4 p-4">
-                <a
-                  href="#"
-                  className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
+                <Link
+                  to="#"
+                  className="hidden p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
                     aria-hidden="true"
@@ -387,9 +364,9 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Sales
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="users"
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -404,9 +381,9 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Users
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="inbox"
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -425,9 +402,9 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Inbox
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="profile"
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -446,9 +423,9 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Profile
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="app/settings"
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -467,9 +444,9 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Settings
                   </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="quizzes"
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -487,54 +464,15 @@ const NavBarAdmin = () => {
                     />
                   </svg>
                   <div className="text-sm text-gray-900 dark:text-white">
-                    Products
+                    Quizzes
                   </div>
-                </a>
-                <a
-                  href="#"
-                  className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="mx-auto mb-1 w-7 h-7 text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    Pricing
-                  </div>
-                </a>
-                <a
-                  href="#"
-                  className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="mx-auto mb-1 w-7 h-7 text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    Billing
-                  </div>
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/logout"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    logout();
+                  }}
                   className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                 >
                   <svg
@@ -555,7 +493,7 @@ const NavBarAdmin = () => {
                   <div className="text-sm text-gray-900 dark:text-white">
                     Logout
                   </div>
-                </a>
+                </Link>
               </div>
             </div>
             <button
@@ -579,10 +517,10 @@ const NavBarAdmin = () => {
             >
               <div className="py-3 px-4">
                 <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                  Neil Sims
+                  {currentUser?.displayName}
                 </span>
                 <span className="block text-sm text-gray-900 truncate dark:text-white">
-                  name@flowbite.com
+                  {currentUser?.email}
                 </span>
               </div>
               <ul
@@ -590,97 +528,20 @@ const NavBarAdmin = () => {
                 aria-labelledby="dropdown"
               >
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="profile"
                     className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
                   >
                     My profile
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="app/settings"
                     className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
                   >
-                    Account settings
-                  </a>
-                </li>
-              </ul>
-              <ul
-                className="py-1 text-gray-700 dark:text-gray-300"
-                aria-labelledby="dropdown"
-              >
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  >
-                    <svg
-                      className="mr-2 w-5 h-5 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    My likes
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  >
-                    <svg
-                      className="mr-2 w-5 h-5 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                    </svg>
-                    Collections
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex justify-between items-center py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  >
-                    <span className="flex items-center">
-                      <svg
-                        aria-hidden="true"
-                        className="mr-2 w-5 h-5 text-primary-600 dark:text-primary-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Pro version
-                    </span>
-                    <svg
-                      aria-hidden="true"
-                      className="w-5 h-5 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </a>
+                    Settings
+                  </Link>
                 </li>
               </ul>
               <ul
@@ -706,43 +567,15 @@ const NavBarAdmin = () => {
       </nav>
       {/* Sidebar */}
       <aside
-        className="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        className="fixed top-0 left-0 z-20 w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
         aria-label="Sidenav"
         id="drawer-navigation"
       >
         <div className="overflow-y-auto py-5 px-3 h-full bg-white dark:bg-gray-800">
-          <form action="#" method="GET" className="md:hidden mb-2">
-            <label htmlFor="sidebar-search" className="sr-only">
-              Search
-            </label>
-            <div className="relative">
-              <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                name="search"
-                id="sidebar-search"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                placeholder="Search"
-              />
-            </div>
-          </form>
           <ul className="space-y-2">
             <li>
-              <a
-                href="#"
+              <Link
+                to="dashboard"
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -756,7 +589,7 @@ const NavBarAdmin = () => {
                   <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                 </svg>
                 <span className="ml-3">Overview</span>
-              </a>
+              </Link>
             </li>
             <li>
               <button
@@ -766,20 +599,22 @@ const NavBarAdmin = () => {
                 data-collapse-toggle="dropdown-pages"
               >
                 <svg
-                  aria-hidden="true"
                   className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                    d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z"
                     clipRule="evenodd"
                   />
                 </svg>
                 <span className="flex-1 ml-3 text-left whitespace-nowrap">
-                  Pages
+                  Users
                 </span>
                 <svg
                   aria-hidden="true"
@@ -797,28 +632,20 @@ const NavBarAdmin = () => {
               </button>
               <ul id="dropdown-pages" className="hidden py-2 space-y-2">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="users/:active"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Settings
-                  </a>
+                    Active Users
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="users"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Kanban
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >
-                    Calendar
-                  </a>
+                    Users
+                  </Link>
                 </li>
               </ul>
             </li>
@@ -830,20 +657,22 @@ const NavBarAdmin = () => {
                 data-collapse-toggle="dropdown-sales"
               >
                 <svg
-                  aria-hidden="true"
                   className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
+                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.008-3.018a1.502 1.502 0 0 1 2.522 1.159v.024a1.44 1.44 0 0 1-1.493 1.418 1 1 0 0 0-1.037.999V14a1 1 0 1 0 2 0v-.539a3.44 3.44 0 0 0 2.529-3.256 3.502 3.502 0 0 0-7-.255 1 1 0 0 0 2 .076c.014-.398.187-.774.48-1.044Zm.982 7.026a1 1 0 1 0 0 2H12a1 1 0 1 0 0-2h-.01Z"
                     clipRule="evenodd"
                   />
                 </svg>
                 <span className="flex-1 ml-3 text-left whitespace-nowrap">
-                  Sales
+                  Quizzes
                 </span>
                 <svg
                   aria-hidden="true"
@@ -861,34 +690,34 @@ const NavBarAdmin = () => {
               </button>
               <ul id="dropdown-sales" className="hidden py-2 space-y-2">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="q/:all"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Products
-                  </a>
+                    All
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="q/:active"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Billing
-                  </a>
+                    Active
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="q/:archive"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Invoice
-                  </a>
+                    Archive
+                  </Link>
                 </li>
               </ul>
             </li>
             <li>
-              <a
-                href="#"
+              <Link
+                to="/admin/inbox"
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -905,8 +734,10 @@ const NavBarAdmin = () => {
                 <span className="inline-flex justify-center items-center w-5 h-5 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">
                   4
                 </span>
-              </a>
+              </Link>
             </li>
+          </ul>
+          <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
             <li>
               <button
                 type="button"
@@ -928,7 +759,7 @@ const NavBarAdmin = () => {
                   />
                 </svg>
                 <span className="flex-1 ml-3 text-left whitespace-nowrap">
-                  Authentication
+                  Account
                 </span>
                 <svg
                   aria-hidden="true"
@@ -949,75 +780,26 @@ const NavBarAdmin = () => {
                 className="hidden py-2 space-y-2"
               >
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="register/user"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
-                    Sign In
-                  </a>
+                    Register User
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >
-                    Sign Up
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="account"
                     className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >
                     Forgot Password
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </li>
-          </ul>
-          <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
             <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="ml-3">Docs</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                </svg>
-                <span className="ml-3">Components</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
+              <Link
+                to="help"
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
                 <svg
@@ -1034,13 +816,13 @@ const NavBarAdmin = () => {
                   />
                 </svg>
                 <span className="ml-3">Help</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
         <div className="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
-          <a
-            href="#"
+          <Link
+            to="account"
             className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
           >
             <svg
@@ -1052,9 +834,9 @@ const NavBarAdmin = () => {
             >
               <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
             </svg>
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="app/settings"
             data-tooltip-target="tooltip-settings"
             className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600"
           >
@@ -1071,7 +853,7 @@ const NavBarAdmin = () => {
                 clipRule="evenodd"
               />
             </svg>
-          </a>
+          </Link>
           <div
             id="tooltip-settings"
             role="tooltip"
@@ -1131,8 +913,8 @@ const NavBarAdmin = () => {
           >
             <ul className="py-1" role="none">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
                   role="menuitem"
                 >
@@ -1171,11 +953,11 @@ const NavBarAdmin = () => {
                     </svg>
                     English (US)
                   </div>
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
                   role="menuitem"
                 >
@@ -1193,11 +975,11 @@ const NavBarAdmin = () => {
                     </svg>
                     Deutsch
                   </div>
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
                   role="menuitem"
                 >
@@ -1217,11 +999,11 @@ const NavBarAdmin = () => {
                     </svg>
                     Italiano
                   </div>
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="#"
                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
                   role="menuitem"
                 >
@@ -1275,7 +1057,7 @@ const NavBarAdmin = () => {
                     </svg>
                     中文 (繁體)
                   </div>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

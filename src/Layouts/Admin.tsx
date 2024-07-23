@@ -1,21 +1,27 @@
 import Footer from "@/Components/Footer";
 import NavBarAdmin from "@/Components/NavBarAdmin";
 import { useAuthUser } from "@/System/Module/Hook";
-import React, { useLayoutEffect, useState } from "react";
+import { initFlowbite } from "flowbite";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import LoadingBar from "react-top-loading-bar";
 
 const Admin: React.FC<{
   children: React.ReactNode;
-  title: string;
-  description?: string;
   no_navbar?: boolean;
   no_footer?: boolean;
-}> = ({ children, title, description, no_navbar, no_footer }) => {
+}> = ({ children, no_navbar, no_footer }) => {
   const [showLoadingBar, setShowLoadingBar] = useState<boolean>(false);
-  const { data: currentUser } = useAuthUser();
+  const { data: currentUser, isLoading, isFetching, isFetched } = useAuthUser();
+  const PauseAuthorization = isLoading || isFetching;
+  useEffect(() => {
+    initFlowbite();
+    return () => {
+      initFlowbite();
+    };
+  }, [currentUser]);
   useLayoutEffect(() => {
     setShowLoadingBar(true);
-  }, []);
+  }, [showLoadingBar, currentUser, PauseAuthorization, isLoading]);
   return (
     <>
       {showLoadingBar && (
@@ -26,13 +32,14 @@ const Admin: React.FC<{
           progress={100}
         />
       )}
-
-      <meta name="description" content={description} />
-      <title>{title} - Admin - Dashboard</title>
       <div>
         {!no_navbar && <NavBarAdmin />}
         <main
-          className={`pt-20 px-4  ${!!currentUser ? "md:ml-64 h-auto" : ""}`}
+          className={`pt-20 px-4  ${
+            !!currentUser && !PauseAuthorization && isFetched
+              ? "md:ml-64 h-auto"
+              : ""
+          }`}
         >
           <div>{children}</div>
           <div className="">{!no_footer && <Footer />}</div>

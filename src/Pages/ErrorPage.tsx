@@ -15,7 +15,10 @@ const ErrorPage = () => {
           <div className="row">
             <div className="col-md-12 manuals">
               <h2 className="font-bold text-lg">{statusText}</h2>
-              <p className="text-sm">{message}</p>
+              <p
+                className="text-sm"
+                dangerouslySetInnerHTML={{ __html: message }}
+              />
             </div>
           </div>
         </div>

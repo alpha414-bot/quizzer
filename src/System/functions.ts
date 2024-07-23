@@ -1,4 +1,5 @@
 import { AuthError } from "firebase/auth";
+import _ from "lodash";
 
 export const NumberPattern = /^[0-9]*$/;
 export const PasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
@@ -19,6 +20,7 @@ export const getErrorMessageViaStatus = (error: RouteErrorInterface) => {
         shortMessage: error.statusText || "Error Encountered",
         longMessage:
           error.data ||
+          error.stack ||
           "There was a problem with this page. Try refreshing the page, if issue persists, contact administrator.",
       };
   }
@@ -57,4 +59,77 @@ export const AuthErrorFilter = (
     default:
       return "Failed to complete operation. Pleast try again later, if issue persist, please contact administrator.";
   }
+};
+
+export const getFileExtension = (filename: string) => {
+  const parts = _.split(filename, ".");
+  return parts.length > 1 ? parts.pop() : "";
+};
+
+export const removeFileExtension = (filename: string) => {
+  const parts = _.split(filename, ".");
+  if (parts.length > 1) {
+    parts.pop();
+    return _.join(parts, ".");
+  }
+  return filename;
+};
+
+// Function to generate a random string of specified length
+const generateRandomString = (length: number) => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return _.times(length, () =>
+    characters.charAt(_.random(0, characters.length - 1))
+  ).join("");
+};
+
+// Function to generate a random file name with a specific extension
+export const generateRandomFileName = (length = 10) => {
+  const randomString = generateRandomString(length);
+  return `${randomString}`;
+};
+
+// Function to generate a slug
+export const createSlug = (str: any) => {
+  return _.chain(str)
+    .deburr() // Remove accents and convert to basic Latin letters
+    .toLower() // Convert to lowercase
+    .trim() // Trim leading and trailing whitespace
+    .replace(/[^a-z0-9\s-]/g, "") // Remove all non-alphanumeric characters except spaces and hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with a single hyphen
+    .value(); // Get the final string value
+};
+
+// MIME_TYPE
+type MimeType = {
+  [key: string]: ExtensionType[];
+};
+export const MIME_TYPE: MimeType = {
+  "image/*": [
+    ".avif",
+    ".bmp",
+    ".gif",
+    ".ico",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".webp",
+  ],
+  "audio/*": [".aac", ".flac", ".mp3", ".ogg", ".wav"],
+  "video/*": [".avi", ".mp4", ".mpeg", ".ogg", ".webm"],
+  "document/*": [
+    // '.csv',
+    ".doc",
+    ".docx",
+    // '.html',
+    ".pdf",
+    ".ppt",
+    ".pptx",
+    ".txt",
+    ".xls",
+    ".xlsx",
+  ],
 };

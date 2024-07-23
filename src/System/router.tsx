@@ -1,6 +1,10 @@
 import Spinner from "@/Components/Spinner";
+import Admin from "@/Layouts/Admin";
+import App from "@/Layouts/App";
+import AdminAppSettings from "@/Pages/Admin/AppSettings";
 import AdminDashboard from "@/Pages/Admin/Dashboard";
 import AdminLogin from "@/Pages/Admin/Login";
+import DynamicImage from "@/Pages/DynamicImage";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
@@ -9,13 +13,13 @@ import { compress, decompress } from "lz-string";
 import { useLayoutEffect } from "react";
 import {
   Navigate,
+  Outlet,
   RouteObject,
   createBrowserRouter,
   useLocation,
   useNavigate,
 } from "react-router-dom";
 import { useAuthUser } from "./Module/Hook";
-import App from "@/Layouts/App";
 
 // Creating a higher-order component to wrap the router with scroll-to-top functionality
 const withScrollToTop = (routerConfig: RouteObject[]) => {
@@ -35,39 +39,48 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const navigate = useNavigate();
   const { data: currentUser, isLoading, isFetching, isFetched } = useAuthUser();
   const PauseAuthorization = isLoading || isFetching;
-
   useLayoutEffect(() => {
     if (!PauseAuthorization && isFetched) {
       if (middlewares && middlewares.includes("auth")) {
         if (!currentUser?.uid) {
           // user is not authenticated
-          navigate("/user/login");
+          navigate("/user/login", {
+            replace: true,
+          });
         }
       }
       if (middlewares && middlewares.includes("user")) {
         if (!currentUser || !(currentUser.claims?.role === "user")) {
           // user is authenticated and the user role is not "user", then there is need to login in to another instance
-          navigate("/user/login");
+          navigate("/user/login", {
+            replace: true,
+          });
         }
       }
       if (middlewares && middlewares.includes("guest")) {
         if (currentUser?.claims?.role === "user") {
           // user is authenticated
-          navigate("/user/dashboard");
+          navigate("/user/dashboard", {
+            replace: true,
+          });
         }
       }
       if (middlewares && middlewares.includes("admin")) {
         // make sure admin is accessing the resources
         if (!currentUser || !currentUser.claims?.admin) {
           // user is not authenticated or authenticated user is not an admin
-          navigate("/admin/login");
+          navigate("/admin/login", {
+            replace: true,
+          });
         }
       }
       if (middlewares && middlewares.includes("admin_guest")) {
         // make sure this is not an admin
         if (currentUser?.claims?.admin) {
           // admin is d authenticated user, (then redirect to the dashboard)
-          navigate("/admin/dashboard");
+          navigate("/admin/dashboard", {
+            replace: true,
+          });
         }
       }
     }
@@ -135,21 +148,50 @@ const routes: RouteObject[] = [
     path: "/admin",
     element: <Navigate to="/admin/login" />,
   },
+  // guest mode
   {
-    path: "/admin/login",
+    path: "/admin",
     element: (
-      <ProtectedRoute middlewares={["admin_guest"]}>
-        <AdminLogin />
-      </ProtectedRoute>
+      <Admin no_navbar>
+        <ProtectedRoute middlewares={["admin_guest"]}>
+          <Outlet />
+        </ProtectedRoute>
+      </Admin>
     ),
+    children: [{ path: "login", element: <AdminLogin /> }],
   },
+  // authenticated mode
   {
-    path: "/admin/dashboard",
+    path: "/admin",
     element: (
       <ProtectedRoute middlewares={["admin"]}>
-        <AdminDashboard />
+        <Admin>
+          <Outlet />
+        </Admin>
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />,
+    children: [
+      { path: "dashboard", element: <AdminDashboard /> },
+      { path: "users", element: <p>Admin user list</p> },
+      { path: "inbox", element: <p>Admin inbox</p> },
+      { path: "profile", element: <p>Admin profile</p> },
+      { path: "users/:state", element: <p>users list</p> },
+      { path: "q/:state", element: <p>quizzes list</p> },
+      { path: "quizzes", element: <p>Quizzes</p> },
+      { path: "app/settings", element: <AdminAppSettings /> },
+      {
+        path: "register/user",
+        element: <p>Register new user account or add company ID</p>,
+      },
+      { path: "account", element: <p>Admin account settings</p> },
+      { path: "help", element: <p>App Help</p> },
+    ],
+  },
+  // dynamic images,
+  {
+    path: "/image",
+    element: <DynamicImage />,
   },
 ];
 

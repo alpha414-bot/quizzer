@@ -1,9 +1,28 @@
-import { auth, firestore } from "@/firebase-config";
+import { auth, firestore, storage } from "@/firebase-config";
+import { MediaItemInterface } from "@/Types/Module";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import _ from "lodash";
-import moment from "moment";
-import { AuthErrorFilter } from "../functions";
+// import * as sharp from 'sharp-wasm';
+import {
+  AuthErrorFilter,
+  createSlug,
+  generateRandomFileName,
+  getFileExtension,
+  isURL,
+  removeFileExtension,
+} from "../functions";
 import { notify } from "../notify";
 
 // login user/admin to their accounts
@@ -63,17 +82,17 @@ export const logout = (dontinform: boolean = false) =>
     try {
       signOut(auth)
         .then((res) => {
-          notify.success({ text: "You have successfully being logged out." });
+          if (!dontinform) {
+            notify.success({ text: "You have successfully being logged out." });
+          }
           resolve(res);
         })
         .catch((error) => {
-          if (!dontinform) {
-            notify.error({
-              text: `[Error @llg]: There was a problem with logging you out. <br/>${JSON.stringify(
-                error
-              )} <br/> Contact administrator`,
-            });
-          }
+          notify.error({
+            text: `[Error @llg]: There was a problem with logging you out. <br/>${JSON.stringify(
+              error
+            )} <br/> Contact administrator`,
+          });
           reject(error);
         });
     } catch (error) {
@@ -102,16 +121,19 @@ export const queryAppMetaData = (listener: any) =>
         async (snap) => {
           const AppMetaDocs = snap.docs.map((item) => ({
             ...item.data(),
-            ...{ id: item.id, fetchedOn: moment() },
+            ...{ id: item.id, fetchedOn: new Date() },
           }));
           resolve(listener(AppMetaDocs));
         },
         (err) => {
-          notify.error({
-            text: `System failed to fetch app. ${JSON.stringify(
-              err
-            )}. <br/> Contact Administrator`,
-          });
+          notify.error(
+            {
+              text: `System failed to fetch app. ${JSON.stringify(
+                err
+              )}. <br/> Contact Administrator`,
+            },
+            err
+          );
           reject(err);
         }
       );
@@ -121,5 +143,233 @@ export const queryAppMetaData = (listener: any) =>
         error
       );
       reject(error);
+    }
+  });
+
+export const queryUserMedia = (
+  listener: any,
+  user_uid?: string
+): Promise<MediaItemInterface[]> =>
+  new Promise((resolve, reject) => {
+    try {
+      const MediaCollection = query(
+        collection(firestore, "Media"),
+        where("user_uid", "==", user_uid),
+        orderBy("createdAt", "desc")
+      );
+      onSnapshot(
+        MediaCollection,
+        async (snap) => {
+          const MedidaDocs = snap.docs.map((item) => ({
+            ...item.data(),
+            ...{ id: item.id },
+          }));
+          resolve(listener(MedidaDocs || []));
+        },
+        (err) => {
+          notify.error(
+            {
+              text: `System failed to retrvied app. ${JSON.stringify(
+                err
+              )}. <br/> Contact Administrator`,
+            },
+            err
+          );
+          reject(err);
+        }
+      );
+    } catch (error) {
+      notify.error(
+        { text: "There was a try/catch error while querying user media" },
+        error
+      );
+    }
+  });
+
+export const queryToUploadFiles = (
+  files: File[],
+  directory: string = "/",
+  randomFileName: boolean = true, // system should generate random filename for each files
+  filename?: string[] // system should make use of specificed filename for each files index in the array
+) =>
+  new Promise((resolve, reject) => {
+    try {
+      const promises = [];
+      for (let i = 0; i < files?.length; i++) {
+        const file = files[i];
+        let FileName;
+        if (randomFileName) {
+          FileName = generateRandomFileName(12);
+        } else {
+          FileName = removeFileExtension(
+            filename && filename?.length > 0
+              ? filename[i] // make sure the current index as a specified name being sent in
+                ? filename[i]
+                : file?.name // if not, use the name of the file uploaded as the filename
+              : file?.name
+          );
+        }
+        const FileExtension = getFileExtension(file?.name);
+        const FileRef = ref(
+          storage,
+          directory
+            ? `${directory}/${FileName}.${FileExtension}`
+            : `${FileName}.${FileExtension}`
+        );
+        promises.push(
+          new Promise((resolve, reject) => {
+            uploadBytes(FileRef, file, {
+              customMetadata: { mime_type: file.type },
+            })
+              .then((snapshot) => {
+                const slug = createSlug(snapshot.metadata.fullPath);
+                const MediaCollection = collection(firestore, "Media");
+                const q = query(MediaCollection, where("slug", "==", slug));
+
+                getDocs(q).then((snap) => {
+                  if (snap.empty && snap.size == 0) {
+                    // prevent duplicate entry of the same file again after upload to storage
+                    addDoc(MediaCollection, {
+                      user_uid: auth.currentUser?.uid,
+                      slug: slug,
+                      reuploadAttempt: 1,
+                      createdAt: new Date(),
+                      media: JSON.parse(
+                        JSON.stringify({ ...snapshot.metadata })
+                      ),
+                    })
+                      .then((data) => {
+                        resolve({
+                          ...data,
+                          ...{ path: snapshot.metadata.fullPath },
+                        });
+                        notify.success({
+                          text:
+                            files.length == 1
+                              ? "File is uploaded successfully."
+                              : "Files are uploaded successfully.",
+                        });
+                      })
+                      .catch((err) => {
+                        notify.error(
+                          {
+                            text: "File has been uploaded successfully, but there was a problem with storing the media to datastore.",
+                          },
+                          err
+                        );
+                        reject(err);
+                      });
+                  } else {
+                    // const ReferenceDoc = doc(firestore, snap.docs[0]);
+                    const ReferenceDoc = doc(MediaCollection, snap.docs[0].id);
+                    updateDoc(ReferenceDoc, {
+                      updatedAt: new Date(),
+                      reuploadAttempt:
+                        (snap.docs[0].data().reuploadAttempt || 0) + 1,
+                    })
+                      .then(() => {
+                        resolve({
+                          ...{
+                            path: snapshot.metadata.fullPath,
+                            id: ReferenceDoc.id,
+                          },
+                        });
+                        notify.success({
+                          text: "File already exists, Records has been updated successfully.",
+                        });
+                      })
+                      .catch((err) => {
+                        notify.error(
+                          {
+                            text: "File exists!. There was issue with updating files record.",
+                          },
+                          err
+                        );
+                        reject(err);
+                      });
+                  }
+                });
+              })
+              .catch((error) => {
+                notify.error(
+                  {
+                    text: `There was an error while resolving final upload. Please check with firebase/storage.<br/>${JSON.stringify(
+                      error
+                    )}`,
+                  },
+                  error
+                );
+                reject(error);
+              });
+          })
+        );
+      }
+
+      Promise.all(promises)
+        .then(resolve)
+        .catch((err) => {
+          notify.error(
+            {
+              text: `There was a problem while uploading to storage. <br/> ${JSON.stringify(
+                err
+              )}`,
+            },
+            err
+          );
+          reject(err);
+        });
+    } catch (error) {
+      notify.error(
+        {
+          text: `There was a trycatch error while uploading files. <br/> ${JSON.stringify(
+            error
+          )}`,
+        },
+        error
+      );
+      reject(error);
+    }
+  });
+
+export const queryToGetAssetFile = (
+  path: any,
+  listener: any,
+  dont_search: boolean = false
+): Promise<string | object> =>
+  new Promise((resolve, reject) => {
+    if (isURL(path) || dont_search) {
+      resolve(path);
+      return path;
+    } else {
+      if (typeof path === "object") {
+        let ResolvedData: object = {};
+        path?.forEach(async (element: any) => {
+          try {
+            const data = await getDownloadURL(ref(storage, element));
+            ResolvedData = _.merge(ResolvedData, {
+              [_.replace(element, /[^a-zA-Z0-9]/g, "")]: data,
+            });
+          } catch (error: any) {
+            ResolvedData = _.merge(ResolvedData, {
+              [_.replace(element, /[^a-zA-Z0-9]/g, "")]: "",
+            });
+            reject(listener(ResolvedData));
+          }
+          if (Object.values(ResolvedData).length === 0) {
+            reject(listener({}));
+            return false;
+          }
+          resolve(listener(ResolvedData));
+        });
+        return true;
+      }
+      return getDownloadURL(ref(storage, path))
+        .then((url: any) => {
+          resolve(url);
+        })
+        .catch((error) => {
+          console.log("getAssetFile", error);
+          reject(error);
+        });
     }
   });

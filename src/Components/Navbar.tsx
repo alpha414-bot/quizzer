@@ -11,7 +11,15 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         <Link to="/">
           <Animate
-            content={<img src="/vite.svg" className="w-16" />}
+            content={
+              false ? (
+                <img src="/vite.svg" className="w-16" />
+              ) : (
+                <p className="self-center text-2xl font-semibold whitespace-nowrap">
+                  Logo is here
+                </p>
+              )
+            }
             skeletons={[{ className: "w-16 h-16 rounded-full" }]}
           />
         </Link>

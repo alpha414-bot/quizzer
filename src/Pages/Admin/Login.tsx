@@ -1,7 +1,7 @@
 import Animate from "@/Components/Animate";
 import Button from "@/Components/Button";
 import Input from "@/Components/Input";
-import Admin from "@/Layouts/Admin";
+import PageMeta from "@/Layouts/PageMeta";
 import { EmailPattern } from "@/System/functions";
 import { queryToLogin } from "@/System/Module/Query";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -14,10 +14,10 @@ const AdminLogin = () => {
     queryToLogin(data, { type: "admin" });
 
   return (
-    <Admin title="Dashboard - Login" no_navbar>
+    <PageMeta title="Dashboard - Login">
       <div className="min-h-screen flex items-center justify-center px-4 md:px-12">
         <form
-          className="my-12 space-y-7 w-full border-2 py-12 px-4 rounded-lg lg:w-3/6 md:space-y-4"
+          className="my-12 space-y-7 w-full border-2 py-12 px-8 rounded-lg lg:w-3/6 md:space-y-4"
           onSubmit={handleSubmit(loginAdministrator)}
         >
           <div className="text-center">
@@ -44,6 +44,7 @@ const AdminLogin = () => {
                   <Input
                     control={control}
                     name="user"
+                    autoComplete="email"
                     placeholder="Email address"
                     rules={{
                       required: "Email is required",
@@ -57,6 +58,7 @@ const AdminLogin = () => {
                     type="password"
                     control={control}
                     name="password"
+                    autoComplete="current-password"
                     placeholder="Password"
                     rules={{ required: "Password is required" }}
                   />
@@ -76,7 +78,7 @@ const AdminLogin = () => {
           </div>
         </form>
       </div>
-    </Admin>
+    </PageMeta>
   );
 };
 export default AdminLogin;
