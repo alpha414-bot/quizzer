@@ -1,12 +1,21 @@
 import { AuthUserType } from "@/Types/Auth";
-import { MediaItemInterface } from "@/Types/Module";
+import { AppMetaDataInterface, MediaItemInterface } from "@/Types/Module";
 import { auth } from "@/firebase-config";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect } from "react";
 import FileResizer from "react-image-file-resizer";
 import { notify } from "../notify";
-import { queryAppMetaData, queryToGetAssetFile, queryUserMedia } from "./Query";
+import {
+  queryAppMetaData,
+  queryToFetchUserMetaData,
+  queryToGetAssetFile,
+  queryUserMedia,
+} from "./Query";
 
 export const useAuthUser = () => {
   const queryClient = useQueryClient();
@@ -14,10 +23,10 @@ export const useAuthUser = () => {
     onAuthStateChanged(auth, (user) => {
       // for syncing all query data if auth user is changed
       if (user?.uid) {
-        auth.currentUser?.getIdTokenResult(true).then((token_result) => {
+        queryToFetchUserMetaData(user.uid).then((metadata) => {
           queryClient.setQueryData(["auth_user"], {
             ...user,
-            ...{ claims: token_result.claims },
+            ...{ metadata },
           });
         });
       } else {
@@ -33,9 +42,8 @@ export const useAuthUser = () => {
         onAuthStateChanged(auth, (user) => {
           try {
             if (user?.uid) {
-              // if user is not signed, sign in user anonymously
-              auth.currentUser?.getIdTokenResult(true).then((token_result) => {
-                resolve({ ...user, ...{ claims: token_result.claims } });
+              queryToFetchUserMetaData(user.uid).then((metadata) => {
+                resolve({ ...user, ...{ metadata } });
               });
             } else {
               resolve(null);
@@ -70,7 +78,9 @@ export const useApp = () => {
   }, []);
   return useQuery({
     queryKey: ["app", "metadata"],
-    queryFn: () => queryAppMetaData(snapshotListener),
+    queryFn: (): Promise<AppMetaDataInterface> =>
+      queryAppMetaData(snapshotListener),
+    placeholderData: keepPreviousData,
   });
 };
 

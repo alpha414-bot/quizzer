@@ -1,5 +1,4 @@
 // Import the functions you need from the SDKs you need
-import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
@@ -22,7 +21,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
-const analytics = getAnalytics(app);
 const functions = getFunctions(app);
 if (ENV.development) {
   connectAuthEmulator(auth, "http://127.0.0.1:9099");
@@ -31,5 +29,5 @@ if (ENV.development) {
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 }
 
-export { analytics, app, auth, firestore, functions, storage };
+export { app, auth, firestore, functions, storage };
 

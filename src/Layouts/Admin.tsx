@@ -18,9 +18,13 @@ const Admin: React.FC<{
     return () => {
       initFlowbite();
     };
-  }, [currentUser]);
+  }, [showLoadingBar, currentUser, PauseAuthorization, isLoading]);
   useLayoutEffect(() => {
     setShowLoadingBar(true);
+    initFlowbite();
+    return () => {
+      initFlowbite();
+    };
   }, [showLoadingBar, currentUser, PauseAuthorization, isLoading]);
   return (
     <>
@@ -35,9 +39,9 @@ const Admin: React.FC<{
       <div>
         {!no_navbar && <NavBarAdmin />}
         <main
-          className={`pt-20 px-4  ${
+          className={`px-4  ${
             !!currentUser && !PauseAuthorization && isFetched
-              ? "md:ml-64 h-auto"
+              ? "pt-20 md:ml-64 h-auto"
               : ""
           }`}
         >

@@ -1,13 +1,25 @@
+import Button from "@/Components/Button";
 import Input from "@/Components/Input";
 import MediaModal from "@/Components/MediaModal";
 import TextArea from "@/Components/TextArea";
 import PageMeta from "@/Layouts/PageMeta";
+import { useApp } from "@/System/Module/Hook";
+import { queryToStoreAppMetaData } from "@/System/Module/Query";
+import { AppMetaDataInterface } from "@/Types/Module";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const AdminAppSettings = () => {
-  const { control, handleSubmit } = useForm();
-  // open/close media modal
-  const updateAppSettings = () => {};
+  const { data: app, isFetched } = useApp();
+  const { control, handleSubmit, reset } = useForm<AppMetaDataInterface>({
+    mode: "all",
+    defaultValues: {},
+  });
+  useEffect(() => {
+    if (isFetched && app) {
+      reset(app);
+    }
+  }, [isFetched, app, reset]);
   return (
     <PageMeta title="App Settings" admin>
       <div>
@@ -21,107 +33,52 @@ const AdminAppSettings = () => {
                   App Settings
                 </h3>
               </div>
-              <MediaModal name="app_logo" />
+
               {/* Modal body */}
-              <form onSubmit={handleSubmit(updateAppSettings)}>
+              <form onSubmit={handleSubmit(queryToStoreAppMetaData)}>
                 {/* hide */}
-                <div className="grid gap-4 mb-4 sm:grid-cols-2">
-                  <button
-                    id="deleteButton"
-                    data-modal-target="deleteModal"
-                    data-modal-toggle="deleteModal"
-                    type="button"
-                    className="w-full cursorpointer text-center text-base font-semibold text-gray-800 flex flex-col gap-y-2 items-center justify-center py-6 px-2 border-2 border-purple-500 border-dotted rounded"
-                  >
-                    <svg
-                      className="w-12 h-12 text-gray-800 dark:text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="m14.707 4.793-4-4a1 1 0 0 0-1.416 0l-4 4a1 1 0 1 0 1.416 1.414L9 3.914V12.5a1 1 0 0 0 2 0V3.914l2.293 2.293a1 1 0 0 0 1.414-1.414Z" />
-                      <path d="M18 12h-5v.5a3 3 0 0 1-6 0V12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
-                    </svg>
-                    Upload App Logo
-                  </button>
-                  <div className="space-y-6">
-                    <Input
-                      name="app_name"
-                      control={control}
-                      placeholder="App Name"
-                    />
-                    <TextArea
-                      name="app_description"
-                      control={control}
-                      placeholder="Description"
-                      rows={5}
-                    />
+                <div className="grid gap-4 mb-4 grid-cols-1 lg:grid-cols-2">
+                  <div className="space-y-4">
+                    <div>
+                      <MediaModal
+                        name="logo"
+                        placeholder="Upload App Logo <br/><small>(For Navigation & Footer)</small>"
+                        control={control}
+                        rules={{ required: "App Logo is required" }}
+                      />
+                    </div>
+                    <div>
+                      <MediaModal
+                        name="favicon"
+                        placeholder="Upload Favicon"
+                        control={control}
+                        rules={{ required: "Favicon is required" }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="brand"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      id="brand"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                      placeholder="Product brand"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="price"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Price
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      id="price"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                      placeholder="$2999"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="category"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Category
-                    </label>
-                    <select
-                      id="category"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    >
-                      <option>Select category</option>
-                      <option value="TV">TV/Monitors</option>
-                      <option value="PC">PC</option>
-                      <option value="GA">Gaming/Console</option>
-                      <option value="PH">Phones</option>
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label
-                      htmlFor="description"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Description
-                    </label>
-                    <textarea
-                      id="description"
-                      rows={4}
-                      className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                      placeholder="Write product description here"
-                      defaultValue={""}
-                    />
+                  <div className="flex flex-col justify-between space-y-3 lg:p-3">
+                    <div className="space-y-4">
+                      <Input
+                        name="name"
+                        control={control}
+                        placeholder="App Name"
+                        // defaultValue={"alpha"}
+                      />
+                      <TextArea
+                        name="description"
+                        control={control}
+                        placeholder="Description"
+                        rows={5}
+                      />
+                      <Input
+                        name="system_email"
+                        control={control}
+                        placeholder="System Email"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="submit">Save</Button>
+                    </div>
                   </div>
                 </div>
                 <button

@@ -20,6 +20,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useAuthUser } from "./Module/Hook";
+import { logout, queryToRegister } from "./Module/Query";
 
 // Creating a higher-order component to wrap the router with scroll-to-top functionality
 const withScrollToTop = (routerConfig: RouteObject[]) => {
@@ -50,7 +51,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         }
       }
       if (middlewares && middlewares.includes("user")) {
-        if (!currentUser || !(currentUser.claims?.role === "user")) {
+        if (!currentUser || !(currentUser.metadata?.role === "user")) {
           // user is authenticated and the user role is not "user", then there is need to login in to another instance
           navigate("/user/login", {
             replace: true,
@@ -58,7 +59,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         }
       }
       if (middlewares && middlewares.includes("guest")) {
-        if (currentUser?.claims?.role === "user") {
+        if (currentUser?.metadata?.role === "user") {
           // user is authenticated
           navigate("/user/dashboard", {
             replace: true,
@@ -67,8 +68,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
       if (middlewares && middlewares.includes("admin")) {
         // make sure admin is accessing the resources
-        if (!currentUser || !currentUser.claims?.admin) {
+        if (!currentUser || !currentUser.metadata?.admin) {
           // user is not authenticated or authenticated user is not an admin
+          logout(true)
           navigate("/admin/login", {
             replace: true,
           });
@@ -76,7 +78,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
       if (middlewares && middlewares.includes("admin_guest")) {
         // make sure this is not an admin
-        if (currentUser?.claims?.admin) {
+        if (currentUser?.metadata?.admin) {
           // admin is d authenticated user, (then redirect to the dashboard)
           navigate("/admin/dashboard", {
             replace: true,
@@ -142,7 +144,26 @@ const routes: RouteObject[] = [
       </ProtectedRoute>
     ),
   },
-
+  // route help
+  {
+    path: "/alpha/help",
+    element: (
+      <>
+        <button
+          onClick={() => {
+            queryToRegister(
+              { email: "admin@gmail.com", password: "Admin0" },
+              true
+            ).then(()=>{
+              logout(true);
+            });
+          }}
+        >
+          Register administrator
+        </button>
+      </>
+    ),
+  },
   // admmin routing
   {
     path: "/admin",

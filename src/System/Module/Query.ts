@@ -1,20 +1,27 @@
 import { auth, firestore, storage } from "@/firebase-config";
-import { MediaItemInterface } from "@/Types/Module";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { AppMetaDataInterface, MediaItemInterface } from "@/Types/Module";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import {
   addDoc,
   collection,
   doc,
   getDocs,
+  limit,
   onSnapshot,
   orderBy,
   query,
+  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import _ from "lodash";
 // import * as sharp from 'sharp-wasm';
+import { UserMetaDataInterface } from "@/Types/Auth";
 import {
   AuthErrorFilter,
   createSlug,
@@ -24,6 +31,38 @@ import {
   removeFileExtension,
 } from "../functions";
 import { notify } from "../notify";
+
+// fetch user metadata
+export const queryToFetchUserMetaData = (
+  user_uid: any
+): Promise<UserMetaDataInterface> =>
+  new Promise((resolve, reject) => {
+    try {
+      const UserCollectionQuery = query(
+        collection(firestore, "Users"),
+        where("uid", "==", user_uid),
+        limit(1)
+      );
+      getDocs(UserCollectionQuery)
+        .then((user_firestore) => {
+          resolve(user_firestore.docs[0].data() as UserMetaDataInterface);
+        })
+        .catch((err) => {
+          reject(err);
+          notify.error({
+            text: "There was issue while fetching user metadata. Please contact administrator",
+          });
+        });
+    } catch (error) {
+      reject(error);
+      notify.error(
+        {
+          text: "There was a try/catch error when fetching user metadata",
+        },
+        error
+      );
+    }
+  });
 
 // login user/admin to their accounts
 export const queryToLogin = (
@@ -38,26 +77,39 @@ export const queryToLogin = (
         payload.password as string
       )
         .then((data) => {
-          data.user.getIdTokenResult(true).then((token) => {
-            const claims = token.claims;
-            if (claims.role === options.type) {
-              resolve(data);
-              notify.success({
-                text: `Welcome <i>${
-                  data?.user?.displayName
-                    ? _.startCase(data?.user?.displayName)
-                    : ""
-                }</i> to your <strong>${_.startCase(
-                  claims.role + " Dashboard"
-                )}</strong>.`,
-              });
-            } else {
+          queryToFetchUserMetaData(data.user.uid)
+            .then((metadata) => {
+              const User = { ...data.user, ...{ metadata } };
+              resolve(User);
+            })
+            .catch((err) => {
+              reject(err);
               notify.error({
-                text: "You are accessing the wrong resources, please navigate to the right user directory/page before login",
+                text: "There was issue while fetching user metadata. Please contact administrator",
               });
-              logout(true);
-            }
-          });
+            });
+          if (false) {
+            data.user.getIdTokenResult(true).then((token) => {
+              const claims = token.claims;
+              if (claims.role === options.type) {
+                resolve(data);
+                notify.success({
+                  text: `Welcome <i>${
+                    data?.user?.displayName
+                      ? _.startCase(data?.user?.displayName)
+                      : ""
+                  }</i> to your <strong>${_.startCase(
+                    claims.role + " Dashboard"
+                  )}</strong>.`,
+                });
+              } else {
+                notify.error({
+                  text: "You are accessing the wrong resources, please navigate to the right user directory/page before login",
+                });
+                logout(true);
+              }
+            });
+          }
         })
         .catch((error) => {
           notify.error({ text: AuthErrorFilter(error) });
@@ -73,6 +125,55 @@ export const queryToLogin = (
         error
       );
       reject(error);
+    }
+  });
+
+// register user to their accounts
+export const queryToRegister = (
+  payload: { email: string; password: string },
+  admin: boolean
+) =>
+  new Promise((resolve, reject) => {
+    try {
+      createUserWithEmailAndPassword(auth, payload.email, payload.password)
+        .then((user) => {
+          // Signed up
+          const UserCollection = collection(firestore, "Users");
+          const { user: currentUser } = user;
+          addDoc(UserCollection, {
+            role: admin ? "admin" : "user",
+            admin: admin,
+            uid: currentUser.uid,
+            displayName: currentUser.displayName,
+          })
+            .then((res) => {
+              resolve(res);
+              notify.success({
+                text: "User has been registered successfully.",
+              });
+            })
+            .catch((err) => {
+              reject(err);
+              notify.error(
+                {
+                  text: "There was a problem with registering. Please contact administrator.",
+                },
+                err
+              );
+            });
+        })
+        .catch((error) => {
+          reject(error);
+          notify.error({ text: AuthErrorFilter(error) });
+        });
+    } catch (error) {
+      reject(error);
+      notify.error(
+        {
+          text: "There was a try/catch error when registering user.<br/> Please contact administrator.",
+        },
+        error
+      );
     }
   });
 
@@ -109,20 +210,20 @@ export const logout = (dontinform: boolean = false) =>
   });
 
 // fetch app metadata
-export const queryAppMetaData = (listener: any) =>
+export const queryAppMetaData = (
+  listener: any
+): Promise<AppMetaDataInterface> =>
   new Promise((resolve, reject) => {
     try {
-      const AppMetaDataCollection = query(
-        collection(firestore, "App"),
-        orderBy("name", "asc")
-      );
+      const AppMetaDataCollection = collection(firestore, "App");
+      const AppMetaDataDoc = doc(AppMetaDataCollection, "metadata");
       onSnapshot(
-        AppMetaDataCollection,
+        AppMetaDataDoc,
         async (snap) => {
-          const AppMetaDocs = snap.docs.map((item) => ({
-            ...item.data(),
-            ...{ id: item.id, fetchedOn: new Date() },
-          }));
+          const AppMetaDocs = {
+            ...snap.data(),
+            ...{ id: snap.id, fetchedOn: new Date() },
+          };
           resolve(listener(AppMetaDocs));
         },
         (err) => {
@@ -146,38 +247,78 @@ export const queryAppMetaData = (listener: any) =>
     }
   });
 
+// store app metadata
+export const queryToStoreAppMetaData = (data: AppMetaDataInterface) =>
+  new Promise((resolve, reject) => {
+    try {
+      const AppCollection = collection(firestore, "App");
+      const MetadataDoc = doc(AppCollection, "metadata");
+      setDoc(MetadataDoc, {
+        ...data,
+        // ...{ logo: data.logo?.media.fullPath },
+      })
+        .then((resp) => {
+          resolve(resp);
+          notify.success({
+            text: "App metadata has been successfully updated.",
+          });
+        })
+        .catch((err) => {
+          reject(err);
+          notify.error(
+            { text: "System met with issue while storing app metadata." },
+            err
+          );
+        });
+    } catch (error) {
+      reject(error);
+      notify.error(
+        {
+          text: "Try/catch caught while storing app metadata.",
+        },
+        error
+      );
+    }
+  });
+
+// fetch user media
 export const queryUserMedia = (
   listener: any,
   user_uid?: string
 ): Promise<MediaItemInterface[]> =>
   new Promise((resolve, reject) => {
     try {
-      const MediaCollection = query(
-        collection(firestore, "Media"),
-        where("user_uid", "==", user_uid),
-        orderBy("createdAt", "desc")
-      );
-      onSnapshot(
-        MediaCollection,
-        async (snap) => {
-          const MedidaDocs = snap.docs.map((item) => ({
-            ...item.data(),
-            ...{ id: item.id },
-          }));
-          resolve(listener(MedidaDocs || []));
-        },
-        (err) => {
-          notify.error(
-            {
-              text: `System failed to retrvied app. ${JSON.stringify(
-                err
-              )}. <br/> Contact Administrator`,
-            },
-            err
-          );
-          reject(err);
-        }
-      );
+      if (user_uid) {
+        const MediaCollection = query(
+          collection(firestore, "Media"),
+          where("user_uid", "==", user_uid),
+          orderBy("createdAt", "desc")
+        );
+        onSnapshot(
+          MediaCollection,
+          async (snap) => {
+            const MedidaDocs = snap.docs.map((item) => ({
+              ...item.data(),
+              ...{ id: item.id },
+            }));
+            resolve(listener(MedidaDocs || []));
+          },
+          (err) => {
+            notify.error(
+              {
+                text: `System failed to retrieve app. ${JSON.stringify(
+                  err
+                )}. <br/> Contact Administrator`,
+              },
+              err
+            );
+            reject(err);
+          }
+        );
+        return true;
+      }
+      resolve([]);
+      return false;
     } catch (error) {
       notify.error(
         { text: "There was a try/catch error while querying user media" },

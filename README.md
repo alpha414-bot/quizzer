@@ -1,30 +1,29 @@
-# React + TypeScript + Vite
+1)	User will click a link and land on the quiz page on our website
+2)	Landing page will show Quiz subject and photos in background 
+3)	User will enter his/her details 
+Enter Full Name: this will appear on his / her certificate
+Enter Email Address:
+Select Company Name from Drop down Menu:
+Enter Rig No. / Company ID:
+Next Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+User will see Subject of the Quiz and the related procedure on one side of the window where he/she can scroll or download the said procedures.
 
-Currently, two official plugins are available:
+The Q&A will start 
+Each Question have 4 options (the options should be shuffling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The questions should not have any numbers so the Question should also shuffle for each user, the Question will not be in order for users.
 
-## Expanding the ESLint configuration
+Once the User answers all the question he/she can submit, after submit there will be a button to see his/her result.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+There will be finish button after clicking finish the user will see an appreciation message and he/she will get the certificate if passes the quiz.
 
-- Configure the top-level `parserOptions` property like this:
+If User passes his/her Certificate will automatically sent on user email address.
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Admin Dashboard 
+1) Admin will create the Test name, background pictures / phots and Q&A under the test and attach procedure for reference.
+2) Admin will add the correct answer at the time of adding questions.
+4) Admin can see all users details who appear in the test.
+5) Admin has a feature to check pass and fail students.
+6) Automatic certificate with QR code will be sent to pass users.
+7) User can verify their certificate in real time with the QR code.

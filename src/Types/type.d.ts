@@ -1,25 +1,3 @@
-
-// miscellaneous interface or extensions
-interface SkeletonProps {
-  count?: number;
-  width?: string | number;
-  height?: string | number;
-  className?: string;
-  parentClassName?: string;
-  resetClassName?: boolean;
-}
-
-type DropdownOptionsType = {
-  key: string;
-  value: string;
-  description?: string;
-};
-
-interface ToastWrapperProps {
-  title?: any;
-  text: any;
-}
-
 // route & middleware type/interface
 type MiddlewareItems = "auth" | "user" | "guest" | "admin" | "admin_guest";
 interface RouteErrorInterface {
@@ -63,6 +41,7 @@ type ExtensionType =
   | ".wav"
   | ".avi"
   | ".mp4"
+  | ".mkv"
   | ".mpeg"
   | ".ogg"
   | ".webm" // '.csv'|
@@ -78,4 +57,25 @@ type ExtensionType =
 
 interface FileInterface extends File {
   path?: string;
+}
+
+// miscellaneous interface or extensions
+interface SkeletonProps {
+  count?: number;
+  width?: string | number;
+  height?: string | number;
+  className?: string;
+  parentClassName?: string;
+  resetClassName?: boolean;
+}
+
+type DropdownOptionsType = {
+  key: string;
+  value: string;
+  description?: string;
+};
+
+interface ToastWrapperProps {
+  title?: any;
+  text: any;
 }

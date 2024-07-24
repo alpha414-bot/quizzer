@@ -1,4 +1,5 @@
 import { AuthError } from "firebase/auth";
+import { Timestamp } from "firebase/firestore";
 import _ from "lodash";
 
 export const NumberPattern = /^[0-9]*$/;
@@ -30,6 +31,23 @@ export const isURL = (url: string): boolean => {
   const pattern = new RegExp("^(?:[a-z]+:)?//", "i");
   return pattern.test(url);
 };
+
+// firebase date converter to understandable momentjs date
+export const fm = (date: Timestamp) => {
+  return new Date(date?.seconds * 1000);
+};
+
+// shorten string text to some characters and add ...
+export const shorten = (text: string, maxLines: number) => {
+  const lines = text.split("\n");
+  const maxTextLength = maxLines * 20; // Assuming an average line length of 40 characters
+  let shortenedText = lines[0]; // Get the first line
+  if (shortenedText.length > maxTextLength) {
+    shortenedText = shortenedText.substring(0, maxTextLength) + "...";
+  }
+  return _.trim(shortenedText);
+};
+
 export const AuthErrorFilter = (
   error: AuthError,
   operation: "forgot-password" | "sign-in" = "sign-in"
@@ -119,7 +137,7 @@ export const MIME_TYPE: MimeType = {
     ".webp",
   ],
   "audio/*": [".aac", ".flac", ".mp3", ".ogg", ".wav"],
-  "video/*": [".avi", ".mp4", ".mpeg", ".ogg", ".webm"],
+  "video/*": [".avi", ".mp4", ".mpeg", ".ogg", ".webm", ".mkv"],
   "document/*": [
     // '.csv',
     ".doc",
@@ -131,5 +149,7 @@ export const MIME_TYPE: MimeType = {
     ".txt",
     ".xls",
     ".xlsx",
+    // ".plain",
+    // ".txt"
   ],
 };

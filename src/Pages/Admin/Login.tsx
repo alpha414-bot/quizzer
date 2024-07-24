@@ -15,7 +15,7 @@ const AdminLogin = () => {
 
   return (
     <PageMeta title="Dashboard - Login">
-      <div className="min-h-screen flex items-center justify-center px-4 md:px-12">
+      <div className="min-h-screen flex items-start justify-center px-4 md:px-12">
         <form
           className="my-12 space-y-7 w-full border-2 py-12 px-8 rounded-lg lg:w-3/6 md:space-y-4"
           onSubmit={handleSubmit(loginAdministrator)}
