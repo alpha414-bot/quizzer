@@ -1,3 +1,4 @@
+import Animate from "@/Components/Animate";
 import Button from "@/Components/Button";
 import Input from "@/Components/Input";
 import MediaModal from "@/Components/MediaModal";
@@ -26,58 +27,85 @@ const AdminAppSettings = () => {
         <div className="overflow-y-auto overflow-x-hidden justify-center items-center w-full h-modal md:h-full">
           <div className="w-full h-full md:h-auto">
             {/* Modal content */}
-            <div className="bg-white dark:bg-gray-800 sm:p-5">
+            <div className="bg-white dark:bg-gray-800">
               {/* Modal header */}
-              <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  App Settings
-                </h3>
+              <div className="flex justify-between items-center pb-2 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                <Animate
+                  content={
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      App Settings
+                    </h3>
+                  }
+                  skeletons={[{ className: "w-44 h-9" }]}
+                />
               </div>
 
               {/* Modal body */}
               <form onSubmit={handleSubmit(queryToStoreAppMetaData)}>
                 {/* hide */}
-                <div className="grid gap-4 mb-4 grid-cols-1 lg:grid-cols-2">
+                <div className="grid mb-4 grid-cols-1 items-start gap-y-8 gap-x-4 lg:grid-cols-2">
                   <div className="space-y-4">
-                    <div>
-                      <MediaModal
-                        name="logo"
-                        placeholder="Upload App Logo <br/><small>(For Navigation & Footer)</small>"
-                        control={control}
-                        rules={{ required: "App Logo is required" }}
-                      />
-                    </div>
-                    <div>
-                      <MediaModal
-                        name="favicon"
-                        placeholder="Upload Favicon"
-                        control={control}
-                        rules={{ required: "Favicon is required" }}
-                      />
-                    </div>
+                    <Animate
+                      content={
+                        <>
+                          <div>
+                            <MediaModal
+                              name="favicon"
+                              placeholder="Upload Favicon"
+                              control={control}
+                              rules={{ required: "Favicon is required" }}
+                            />
+                          </div>
+                          <div>
+                            <MediaModal
+                              name="logo"
+                              placeholder="Upload App Logo <br/><small>(For Navigation & Footer)</small>"
+                              control={control}
+                              rules={{ required: "Logo is required" }}
+                            />
+                          </div>
+                        </>
+                      }
+                      fill={2}
+                      skeletons={[{ className: "w-full h-48" }]}
+                    />
                   </div>
                   <div className="flex flex-col justify-between space-y-3 lg:p-3">
-                    <div className="space-y-4">
-                      <Input
-                        name="name"
-                        control={control}
-                        placeholder="App Name"
-                        // defaultValue={"alpha"}
-                      />
-                      <TextArea
-                        name="description"
-                        control={control}
-                        placeholder="Description"
-                        rows={5}
-                      />
-                      <Input
-                        name="system_email"
-                        control={control}
-                        placeholder="System Email"
+                    <div className="space-y-7">
+                      <Animate
+                        content={
+                          <>
+                            <Input
+                              name="name"
+                              control={control}
+                              placeholder="App Name"
+                              // defaultValue={"alpha"}
+                            />
+                            <TextArea
+                              name="description"
+                              control={control}
+                              placeholder="Description"
+                              rows={5}
+                            />
+                            <Input
+                              name="system_email"
+                              control={control}
+                              placeholder="System Email"
+                            />
+                          </>
+                        }
+                        skeletons={[
+                          { className: "w-full h-8" },
+                          { className: "w-full h-28" },
+                          { className: "w-full h-8" },
+                        ]}
                       />
                     </div>
                     <div className="flex justify-end">
-                      <Button type="submit">Save</Button>
+                      <Animate
+                        content={<Button type="submit">Save</Button>}
+                        skeletons={[{ className: "h-9 w-24" }]}
+                      />
                     </div>
                   </div>
                 </div>

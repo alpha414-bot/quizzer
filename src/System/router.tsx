@@ -4,7 +4,6 @@ import App from "@/Layouts/App";
 import AdminAppSettings from "@/Pages/Admin/AppSettings";
 import AdminDashboard from "@/Pages/Admin/Dashboard";
 import AdminLogin from "@/Pages/Admin/Login";
-import DynamicImage from "@/Pages/DynamicImage";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
@@ -70,7 +69,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         // make sure admin is accessing the resources
         if (!currentUser || !currentUser.metadata?.admin) {
           // user is not authenticated or authenticated user is not an admin
-          logout(true)
+          logout(true);
           navigate("/admin/login", {
             replace: true,
           });
@@ -154,7 +153,7 @@ const routes: RouteObject[] = [
             queryToRegister(
               { email: "admin@gmail.com", password: "Admin0" },
               true
-            ).then(()=>{
+            ).then(() => {
               logout(true);
             });
           }}
@@ -208,11 +207,6 @@ const routes: RouteObject[] = [
       { path: "account", element: <p>Admin account settings</p> },
       { path: "help", element: <p>App Help</p> },
     ],
-  },
-  // dynamic images,
-  {
-    path: "/image",
-    element: <DynamicImage />,
   },
 ];
 

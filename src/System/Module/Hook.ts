@@ -8,7 +8,6 @@ import {
 } from "@tanstack/react-query";
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect } from "react";
-import FileResizer from "react-image-file-resizer";
 import { notify } from "../notify";
 import {
   queryAppMetaData,
@@ -149,19 +148,7 @@ export const useBlob = (key: any, size: number = 300) => {
             new Promise((resolve) => {
               fetchBlob(file)
                 .then((file) => {
-                  FileResizer.imageFileResizer(
-                    file,
-                    size,
-                    size,
-                    "JPEG",
-                    400,
-                    0,
-                    (uri) => {
-                      console.log(uri);
-                      resolve(uri);
-                    },
-                    "base64"
-                  );
+                  resolve(file);
                 })
                 .catch(reject);
             });

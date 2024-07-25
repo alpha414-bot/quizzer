@@ -1,5 +1,6 @@
 import { AuthError } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
+import { StorageError } from "firebase/storage";
 import _ from "lodash";
 
 export const NumberPattern = /^[0-9]*$/;
@@ -75,7 +76,23 @@ export const AuthErrorFilter = (
     case error.code == "auth/weak-password":
       return "Password is too weak to complete sign up. Try again with a stronger password.";
     default:
-      return "Failed to complete operation. Pleast try again later, if issue persist, please contact administrator.";
+      return "There was an issue while handling the operation. Please try again later. If issue persist, contact administrator.";
+  }
+};
+export const StorageErrorFilter = (error: StorageError) => {
+  switch (true) {
+    case error.code == "storage/object-not-found":
+      return "No file exists at the specified path.";
+    case error.code == "storage/bucket-not-found	":
+      return "No such bucket exists in cloud storage ";
+    case error.code == "storage/unauthenticated	":
+      return "User must be authenticated to be authorize to resources in the Cloud Storage";
+    case error.code == "storage/retry-limit-exceeded":
+      return "The maximum time limit on an operation (upload, download, delete, etc.) has been excceded. Try uploading again.";
+    case error.code == "storage/invalid-argument":
+      return "The argument passed to put() must be `File`, `Blob`, or `UInt8` Array. The argument passed to putString() must be a raw, `Base64`, or `Base64URL` string.";
+    default:
+      return "There was an issue while handling the operation. Please try again later. If issue persist, contact administrator. ";
   }
 };
 

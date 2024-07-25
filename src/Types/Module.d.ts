@@ -12,6 +12,7 @@ interface MediaItemInterface {
 
 interface AppMetaDataInterface {
   logo?: MediaItemInterface;
+  favicon?: MediaItemInterface;
   name?: string;
   description?: string;
   system_email?: string;

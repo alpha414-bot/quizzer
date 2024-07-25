@@ -6,12 +6,15 @@ interface AnimateInterfaceProps {
   skeletons: SkeletonProps[];
   loading?: boolean;
   timeout?: number;
+  fill?: number;
 }
 const Animate: React.FC<AnimateInterfaceProps> = ({
   content,
   skeletons,
+  fill,
   loading = false,
-  timeout = 2000,
+  // timeout = 2000,
+  timeout = 5000,
 }) => {
   const [showContent, setShowContent] = useState<boolean>(false);
   const _timeout = () => {
@@ -26,15 +29,23 @@ const Animate: React.FC<AnimateInterfaceProps> = ({
   }, [timeout, loading]);
   return (
     <>
-      {showContent ? (
-        content
-      ) : (
-        <>
-          {skeletons.map((item, index) => (
-            <Skeletons key={index} {...item} />
-          ))}
-        </>
-      )}
+      {showContent
+        ? content
+        : (!fill && (
+            <>
+              {skeletons.map((item, index) => (
+                <Skeletons key={index} {...item} />
+              ))}
+            </>
+          )) || (
+            <>
+              {Array(fill)
+                .fill(skeletons && skeletons[0])
+                .map((item, index) => (
+                  <Skeletons key={index} {...item} />
+                ))}
+            </>
+          )}
     </>
   );
 };

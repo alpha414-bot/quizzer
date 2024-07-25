@@ -2,6 +2,7 @@ import { auth } from "@/firebase-config";
 import { getFileExtension, MIME_TYPE } from "@/System/functions";
 import { useUserMedia } from "@/System/Module/Hook";
 import { queryToUploadFiles } from "@/System/Module/Query";
+import { Modal } from "flowbite";
 import _ from "lodash";
 import React, { useCallback, useState } from "react";
 import { FileError, useDropzone } from "react-dropzone";
@@ -73,7 +74,24 @@ const MediaModal: React.FC<{
     });
 
   mediaType = _.map(mediaType, _.lowerCase) as MediaMimeType[];
-
+  // set the modal menu element
+  const $targetEl = document.getElementById(`${name}MediaModal`);
+  // instance options object
+  const instanceOptions = {
+    id: "mediaModal",
+    override: true,
+  };
+  const modal = new Modal(
+    $targetEl,
+    {
+      placement: "bottom-right",
+      backdrop: "dynamic",
+      backdropClasses: "bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40",
+      closable: true,
+    },
+    instanceOptions
+  );
+  // }, []);
   return (
     <Controller
       name={name}
@@ -85,11 +103,12 @@ const MediaModal: React.FC<{
       }) => {
         return (
           <>
-            <div className="flex flex-col items-stretch gap-4 md:flex-row">
+            <div className="p-3 flex flex-col items-stretch gap-4 md:flex-row-reverse md:p-0">
               <button
-                id="mediaButton"
-                data-modal-target="mediaModal"
-                data-modal-toggle="mediaModal"
+                id={`${name}MediaButton`}
+                onClick={() => {
+                  modal.toggle();
+                }}
                 type="button"
                 className="w-full cursorpointer text-center text-base font-semibold text-gray-800 flex flex-col gap-y-2 items-center justify-center py-6 px-2 border-2 border-purple-500 border-dotted rounded"
               >
@@ -124,14 +143,13 @@ const MediaModal: React.FC<{
                 }}
               ></span>
             )}
-
             <div
-              id="mediaModal"
+              id={`${name}MediaModal`}
               tabIndex={-1}
               aria-hidden="true"
-              className="hidden overflow-y-auto bg-gray-400/10 overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+              className="hidden overflow-y-auto bg-gray-900/50 overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
             >
-              <div className="relative p-4 w-full max-w-2xl h-full overflow-hidden">
+              <div className="relative w-full max-w-2xl h-auto overflow-hidden">
                 {/* Modal content */}
                 <div className="relative text-center max-h-[90vh] overflow-y-auto scroll-smooth bg-white rounded-lg shadow sm:p-5">
                   <div className="">
@@ -156,7 +174,8 @@ const MediaModal: React.FC<{
                                 <button
                                   className="inline-block p-4 border-b-2 rounded-t-lg"
                                   id="media-tab"
-                                  data-tabs-target={`#${media_name}_tab`}
+                                  // data-tabs-target={`#${media_name}_tab`}
+                                  data-tabs-target={`#${media_name}_tab_${name}Modal`}
                                   type="button"
                                   role="tab"
                                   aria-controls={media_name}
@@ -176,7 +195,8 @@ const MediaModal: React.FC<{
                             <div
                               key={index}
                               className="hidden p-2"
-                              id={`${media_name}_tab`}
+                              // id={`${media_name}_tab`}
+                              id={`${media_name}_tab_${name}Modal`}
                               role="tabpanel"
                               aria-labelledby={`${media_name}-tab`}
                             >
@@ -254,6 +274,7 @@ const MediaModal: React.FC<{
                                           })
                                           .map((item, index) => (
                                             <MediaComponent
+                                              modal={modal}
                                               key={index}
                                               item={item}
                                               onChange={onChange}

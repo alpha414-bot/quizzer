@@ -1,17 +1,19 @@
 import { fm, shorten } from "@/System/functions";
 import { useMediaFile } from "@/System/Module/Hook";
+import { queryToDeleteFiles } from "@/System/Module/Query";
 import { MediaItemInterface } from "@/Types/Module";
-import { initFlowbite } from "flowbite";
+import { initFlowbite, Modal } from "flowbite";
 import _ from "lodash";
 import moment from "moment";
 import { useEffect } from "react";
 
 const MediaComponent: React.FC<{
   item: MediaItemInterface;
+  modal?: Modal;
   onBlur?: any;
   onChange?: any;
   showCase?: boolean;
-}> = ({ item, onBlur, onChange, showCase = false }) => {
+}> = ({ item, modal, onBlur, onChange, showCase = false }) => {
   const type = _.split(item?.media?.contentType, "/")[0];
   const { data: src } = useMediaFile(item?.media?.fullPath);
   const { media, createdAt, updatedAt } = item;
@@ -32,7 +34,7 @@ const MediaComponent: React.FC<{
         className="absolute right-1 top-1 z-20 p-0.5 rounded-md bg-purple-500 cursorpointer shadow-md"
         onClick={() => {
           if (!showCase) {
-            console.log("delete me");
+            queryToDeleteFiles(media.fullPath);
           } else {
             // remove file
             onChange(null);
@@ -78,7 +80,7 @@ const MediaComponent: React.FC<{
 
       <button
         type="button"
-        data-modal-hide="mediaModal"
+        // data-modal-hide="mediaModal"
         className={`relative w-full ${
           showCase ? "h-full" : "h-auto"
         } rounded-md bg-center group ${
@@ -87,23 +89,30 @@ const MediaComponent: React.FC<{
             : "flex items-stretch justify-center cursor-pointer"
         }`}
         onClick={() => {
-          if (src && !showCase) return onChange({ ...item, ...{ src: src } });
+          if (src && !showCase) {
+            modal?.hide();
+            onChange({ ...item, ...{ src: src } });
+          }
         }}
       >
         {(!src && (
           <>
-            {type == "image" && (
-              <span className="material-symbols-outlined text-6xl text-white">
-                image_not_supported
-              </span>
-            )}
-            {type == "document" ||
-              (type == "file" && (
-                <span className="material-symbols-outlined text-6xl text-white">
-                  unknown_document
-                </span>
-              ))}
-            <span className="font-semibold text-white text-sm text-center">
+            <svg
+              className="w-full h-full text-gray-100"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fillRule="evenodd"
+                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="mb-2 -mt-2 font-semibold text-gray-100 text-sm text-center">
               !! {_.upperFirst(type)} not found !!
             </span>
           </>
@@ -116,10 +125,7 @@ const MediaComponent: React.FC<{
                 alt={media?.name}
               />
             )}
-            {(type == "file" ||
-              type == "text" ||
-              type == "application" ||
-              type == "document") && (
+            {type != "image" && type != "video" && (
               <>
                 <svg
                   className="w-full min-w-44 h-full min-h-44 text-white"

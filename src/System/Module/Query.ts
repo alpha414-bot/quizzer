@@ -8,6 +8,7 @@ import {
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   limit,
@@ -18,7 +19,12 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import _ from "lodash";
 // import * as sharp from 'sharp-wasm';
 import { UserMetaDataInterface } from "@/Types/Auth";
@@ -28,7 +34,7 @@ import {
   generateRandomFileName,
   getFileExtension,
   isURL,
-  removeFileExtension,
+  removeFileExtension
 } from "../functions";
 import { notify } from "../notify";
 
@@ -327,6 +333,7 @@ export const queryUserMedia = (
     }
   });
 
+// upload files to storage
 export const queryToUploadFiles = (
   files: File[],
   directory: string = "/",
@@ -469,6 +476,51 @@ export const queryToUploadFiles = (
         error
       );
       reject(error);
+    }
+  });
+
+//
+export const queryToDeleteFiles = (path: string) =>
+  new Promise((resolve, reject) => {
+    try {
+      const FileRef = ref(storage, path);
+      // delete from firestore collection first, and then proceed to deleting from storage
+      const MediaCollection = collection(firestore, "Media");
+      const QueryForFile = query(
+        MediaCollection,
+        where("media.fullPath", "==", path),
+        limit(1)
+      );
+      getDocs(QueryForFile).then((snapFile) => {
+        if (!snapFile.empty) {
+          const MediaFile = snapFile.docs[0];
+          deleteDoc(MediaFile.ref)
+            .then(() => {
+              // if media docs was deleted from firestore successfully, then there is no point as to if it was deleted in the bucket
+              deleteObject(FileRef).then((resp) => {
+                resolve(resp);
+                notify.success({
+                  text: "File has been deleted successfully.",
+                });
+              });
+            })
+            .catch((err) => {
+              console.log(
+                "There was a severe issue while delete file. Please contact administrator",
+                err,
+                err.code
+              );
+            });
+        }
+      });
+    } catch (error) {
+      reject(error);
+      notify.error(
+        {
+          text: "Try/catch error while deleting the file. Please try again later.",
+        },
+        error
+      );
     }
   });
 
