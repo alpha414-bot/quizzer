@@ -5,3 +5,24 @@
 .firebase-emulator-warning {
   @apply hidden;
 }
+
+@layer base {
+  .rich-editor h1 {
+    @apply text-3xl font-semibold;
+  }
+  .rich-editor h2 {
+    @apply text-2xl font-medium !important;
+  }
+  .rich-editor ol {
+    @apply list-decimal pl-4 !important;
+  }
+  .rich-editor ul {
+    @apply list-disc pl-4 !important;
+  }
+  .rich-editor blockquote {
+    @apply border-l-2 border-gray-500 ml-5 pl-2 text-gray-500 italic  !important;
+  }
+  .rich-editor code {
+    @apply inline-block font-mono bg-gray-300 p-0.5 my-1 !important;
+  }
+}

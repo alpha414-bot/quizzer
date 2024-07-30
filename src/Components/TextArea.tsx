@@ -72,7 +72,10 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     id={name}
                     className={`${FieldValue ? "pt-4 pb-1" : "py-2"} ${
                       placeholder ? "focus:pt-4 focus:pb-1" : "focus:py-2"
-                    } px-3 pr-10 mb-0.5 bg-gray-100 dark:bg-gray-700 border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 block w-full p-2.5 ${className} `}
+                    } px-3 pr-10 mb-0.5 bg-gray-100 dark:bg-gray-700 border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 w-full p-2.5 ${className} `}
+                    // className={`${FieldValue ? "pt-4 pb-1" : "py-2"} ${
+                    //   placeholder ? "focus:pt-4 focus:pb-1" : "focus:py-2"
+                    // } px-3 pr-10 mb-0.5 bg-gray-100 dark:bg-gray-700 border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 block w-full p-2.5 ${className} `}
                     onFocus={handleFocus}
                     value={value || ""}
                     onBlur={handleBlur}

@@ -1,5 +1,8 @@
 import { AuthUserType } from "@/Types/Auth";
-import { AppMetaDataInterface, MediaItemInterface } from "@/Types/Module";
+import {
+  AppMetaDataInterface,
+  MediaItemInterface
+} from "@/Types/Module";
 import { auth } from "@/firebase-config";
 import {
   keepPreviousData,
@@ -13,6 +16,7 @@ import {
   queryAppMetaData,
   queryToFetchUserMetaData,
   queryToGetAssetFile,
+  queryToGetQuiz,
   queryUserMedia,
 } from "./Query";
 
@@ -157,5 +161,18 @@ export const useBlob = (key: any, size: number = 300) => {
           reject(error);
         }
       }),
+  });
+};
+
+export const useQuiz = <T>(id?: any, status?: string) => {
+  const queryClient = useQueryClient();
+  const queryKey = ["quiz", id || "all", status];
+  const snapshotListener = useCallback((data: any) => {
+    queryClient.setQueryData(queryKey, data);
+    return data;
+  }, [status, id]);
+  return useQuery({
+    queryKey,
+    queryFn: (): Promise<T> => queryToGetQuiz(snapshotListener, id, status),
   });
 };

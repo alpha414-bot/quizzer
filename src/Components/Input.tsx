@@ -78,7 +78,9 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
                     ref={input}
                     id={name}
                     disabled={disabled}
-                    className={`${FieldValue ? "pt-4 pb-1" : "py-2"} ${
+                    className={`${
+                      FieldValue && placeholder ? "pt-4 pb-1" : "py-2"
+                    } ${
                       placeholder ? "focus:pt-4 focus:pb-1" : "focus:py-2"
                     } px-3 pr-10 mb-0.5 ${
                       disabled

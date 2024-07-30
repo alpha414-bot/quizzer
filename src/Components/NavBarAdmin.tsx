@@ -10,7 +10,7 @@ const NavBarAdmin = () => {
   return (
     <>
       <div className="relative z-40">
-        <nav className="bg-white border-b border-gray-200 px-4 py-2 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-40">
+        <nav className="bg-white border-b border-gray-200 px-1 py-2 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-40 md:px-4">
           <div className="flex flex-wrap justify-between items-center">
             <div className="flex justify-start items-center">
               <Animate
@@ -115,11 +115,28 @@ const NavBarAdmin = () => {
                       data-dropdown-toggle="dropdown"
                     >
                       <span className="sr-only">Open user menu</span>
-                      <Img
-                        src={app?.logo?.media.fullPath}
-                        className="w-10 h-10 md:w-8 md:h-8 rounded-full"
-                        alt="user photo"
-                      />
+                      {((!app?.logo || !appDataIsFetched) && (
+                        <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full md:w-8 md:h-8">
+                          <svg
+                            className="absolute w-12 h-12 text-gray-400 -left-1 md:w-10 md:h-10"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )) || (
+                        <Img
+                          src={app?.logo?.media.fullPath}
+                          className="w-10 h-10 md:w-8 md:h-8 rounded-full"
+                          alt="user photo"
+                        />
+                      )}
                     </button>
                   </>
                 }

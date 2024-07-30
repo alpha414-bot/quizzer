@@ -33,9 +33,16 @@ export const isURL = (url: string): boolean => {
   return pattern.test(url);
 };
 
+// prioritize tailwindcss
+export const tw = (className?: string) => {
+  let ClassName = _.split(className, " ");
+  ClassName = _.map(ClassName, (item) => `!${item}`);
+  return " "+_.join(ClassName, " ")+" ";
+};
+
 // firebase date converter to understandable momentjs date
-export const fm = (date: Timestamp) => {
-  return new Date(date?.seconds * 1000);
+export const fm = (date?: Timestamp) => {
+  return date && new Date(date?.seconds * 1000);
 };
 
 // shorten string text to some characters and add ...
@@ -169,4 +176,12 @@ export const MIME_TYPE: MimeType = {
     // ".plain",
     // ".txt"
   ],
+};
+
+export const js = (data: any, stringify_only: boolean = false) => {
+  let Data = JSON.stringify(data);
+  if (stringify_only) {
+    return Data;
+  }
+  return JSON.parse(Data);
 };

@@ -9,7 +9,7 @@ const PageMeta: React.FC<{
   title: string;
   description?: string;
   admin?: boolean;
-}> = ({ children, title, description, admin }) => {
+}> = ({ children, title = "", description, admin }) => {
   // later title and description won't be necessary has that would be depended on the sitemap
   const { data: app } = useApp();
   useEffect(() => {
@@ -20,7 +20,8 @@ const PageMeta: React.FC<{
       <p></p>
       <Helmet>
         <title>
-          {title} {admin ? `- Admin` : ""} {`- ${app?.name?.toString()}`}
+          {title} {admin ? `- Admin` : ""}{" "}
+          {app?.name ? `- ${app?.name?.toString()}` : ""}
         </title>
         <link rel="canonical" href={window.location.origin} />
         <meta name="description" content={description} />

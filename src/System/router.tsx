@@ -4,6 +4,9 @@ import App from "@/Layouts/App";
 import AdminAppSettings from "@/Pages/Admin/AppSettings";
 import AdminDashboard from "@/Pages/Admin/Dashboard";
 import AdminLogin from "@/Pages/Admin/Login";
+import NewQuiz from "@/Pages/Admin/NewQuiz";
+import AdminQuizs from "@/Pages/Admin/Quizs";
+import EditQuiz from "@/Pages/Admin/EditQuiz";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
@@ -163,12 +166,12 @@ const routes: RouteObject[] = [
       </>
     ),
   },
-  // admmin routing
+  // admmin rerouting
   {
     path: "/admin",
     element: <Navigate to="/admin/login" />,
   },
-  // guest mode
+  // admin guest routes
   {
     path: "/admin",
     element: (
@@ -180,7 +183,7 @@ const routes: RouteObject[] = [
     ),
     children: [{ path: "login", element: <AdminLogin /> }],
   },
-  // authenticated mode
+  // admin authenticated routes
   {
     path: "/admin",
     element: (
@@ -197,7 +200,9 @@ const routes: RouteObject[] = [
       { path: "inbox", element: <p>Admin inbox</p> },
       { path: "profile", element: <p>Admin profile</p> },
       { path: "users/:state", element: <p>users list</p> },
-      { path: "q/:state", element: <p>quizzes list</p> },
+      { path: "q/:state", element: <AdminQuizs /> },
+      { path: "new/quiz", element: <NewQuiz /> },
+      { path: "quiz/edit/:id", element: <EditQuiz /> },
       { path: "quizzes", element: <p>Quizzes</p> },
       { path: "app/settings", element: <AdminAppSettings /> },
       {

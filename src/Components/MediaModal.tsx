@@ -4,7 +4,7 @@ import { useUserMedia } from "@/System/Module/Hook";
 import { queryToUploadFiles } from "@/System/Module/Query";
 import { Modal } from "flowbite";
 import _ from "lodash";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { FileError, useDropzone } from "react-dropzone";
 import { Control, Controller, RegisterOptions } from "react-hook-form";
 import MediaComponent from "./MediaComponent";
@@ -14,18 +14,21 @@ type MediaMimeType = "image" | "video" | "document" | "others";
 const MediaModal: React.FC<{
   mediaType?: MediaMimeType[];
   name: string;
-  placeholder: string;
+  placeholder?: string;
   control: Control;
+  align?: "col" | "row";
   rules?: RegisterOptions;
 }> = ({
   name,
   placeholder,
   control,
+  align = "row",
   rules,
   mediaType = ["image", "video", "document", "others"],
 }) => {
   const [isMediaUploading, setIsImageUploading] = useState(false);
   const { data: medias } = useUserMedia();
+  const [modal, setModal] = useState<Modal>();
   const onDrop = useCallback(async (acceptedFiles?: any) => {
     // Do something with the files
     // Use the Inertia.post method to send the file to your Laravel backend.
@@ -75,22 +78,26 @@ const MediaModal: React.FC<{
 
   mediaType = _.map(mediaType, _.lowerCase) as MediaMimeType[];
   // set the modal menu element
-  const $targetEl = document.getElementById(`${name}MediaModal`);
-  // instance options object
-  const instanceOptions = {
-    id: "mediaModal",
-    override: true,
-  };
-  const modal = new Modal(
-    $targetEl,
-    {
-      placement: "bottom-right",
-      backdrop: "dynamic",
-      backdropClasses: "bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40",
-      closable: true,
-    },
-    instanceOptions
-  );
+  useLayoutEffect(() => {
+    const $targetEl = document.getElementById(`${name}MediaModal`);
+    // instance options object
+    const instanceOptions = {
+      id: "mediaModal",
+      override: true,
+    };
+    const modalInstance = new Modal(
+      $targetEl,
+      {
+        placement: "bottom-right",
+        backdrop: "dynamic",
+        backdropClasses:
+          "bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40",
+        closable: true,
+      },
+      instanceOptions
+    );
+    setModal(modalInstance);
+  }, [medias]);
   // }, []);
   return (
     <Controller
@@ -103,11 +110,11 @@ const MediaModal: React.FC<{
       }) => {
         return (
           <>
-            <div className="p-3 flex flex-col items-stretch gap-4 md:flex-row-reverse md:p-0">
+            <div className={`p-3 flex flex-col items-stretch gap-4 md:flex-${align}-reverse md:p-0`}>
               <button
                 id={`${name}MediaButton`}
                 onClick={() => {
-                  modal.toggle();
+                  modal?.toggle();
                 }}
                 type="button"
                 className="w-full cursorpointer text-center text-base font-semibold text-gray-800 flex flex-col gap-y-2 items-center justify-center py-6 px-2 border-2 border-purple-500 border-dotted rounded"
@@ -122,7 +129,7 @@ const MediaModal: React.FC<{
                   <path d="m14.707 4.793-4-4a1 1 0 0 0-1.416 0l-4 4a1 1 0 1 0 1.416 1.414L9 3.914V12.5a1 1 0 0 0 2 0V3.914l2.293 2.293a1 1 0 0 0 1.414-1.414Z" />
                   <path d="M18 12h-5v.5a3 3 0 0 1-6 0V12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
                 </svg>
-                <span dangerouslySetInnerHTML={{ __html: placeholder }} />
+                <span dangerouslySetInnerHTML={{ __html: placeholder || "" }} />
               </button>
               {value && typeof value === "object" && (
                 <div className="md:max-w-60">

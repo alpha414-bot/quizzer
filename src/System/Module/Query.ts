@@ -1,5 +1,9 @@
 import { auth, firestore, storage } from "@/firebase-config";
-import { AppMetaDataInterface, MediaItemInterface } from "@/Types/Module";
+import {
+  AppMetaDataInterface,
+  MediaItemInterface,
+  QuizMetaDataInterface,
+} from "@/Types/Module";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,12 +14,14 @@ import {
   collection,
   deleteDoc,
   doc,
+  DocumentReference,
   getDocs,
   limit,
   onSnapshot,
   orderBy,
   query,
   setDoc,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -34,9 +40,174 @@ import {
   generateRandomFileName,
   getFileExtension,
   isURL,
-  removeFileExtension
+  removeFileExtension,
 } from "../functions";
 import { notify } from "../notify";
+
+const retrieveQuestionData = (ref: DocumentReference) =>
+  new Promise((resolve, reject) => {
+    const QuestionsCollection = collection(ref, "questions");
+    onSnapshot(
+      QuestionsCollection,
+      async (snapQuestion) => {
+        const questionData = snapQuestion.docs.map((item) => ({
+          ...item.data(),
+          ...{ id: item.id },
+        }));
+        resolve(questionData);
+      },
+      (err) => {
+        reject(err);
+        notify.error(
+          {
+            text: "There was a problem with fetching each quiz question",
+          },
+          err
+        );
+      }
+    );
+  });
+
+// query to store metadata of surveys
+export const queryToStoreQuizMetaData = (data: QuizMetaDataInterface) =>
+  new Promise((resolve, reject) => {
+    try {
+      const QuizCollection = collection(firestore, "Quiz");
+      const q = query(QuizCollection, where("slug", "==", data.slug));
+      getDocs(q).then((snap) => {
+        if (snap.empty && snap.size == 0) {
+          addDoc(QuizCollection, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+          })
+            .then((resp) => {
+              resolve({ ...{ id: resp.id }, ...data });
+            })
+            .catch((err) => {
+              notify.error(
+                {
+                  text: "There was an issue while adding quiz metadata.",
+                },
+                err
+              );
+            });
+        } else {
+          resolve({ ...snap.docs[0].data(), ...{ error: true } });
+          notify.info({
+            text: `The quiz <strong>${data?.title}</strong> already exists! Please go to quiz list to check that out.`,
+          });
+        }
+      });
+    } catch (error) {
+      reject(error);
+      notify.error(
+        {
+          text: "There was a try/catch error when setting up quiz. Please contact administrator",
+        },
+        error
+      );
+    }
+  });
+
+// query to get quiz all data
+export const queryToGetQuiz = <T>(
+  listener: any,
+  id?: any,
+  status?: string
+): Promise<T> =>
+  new Promise((resolve, reject) => {
+    let QuizCollection: any = collection(firestore, "Quiz");
+    if (id) {
+      // retrieving one quiz
+      const MediaDoc = doc(QuizCollection, id);
+      onSnapshot(
+        MediaDoc,
+        async (snap) => {
+          // retrieve the questions collection under this quiz
+          const QuestionsCollection = collection(snap.ref, "questions");
+          // query should be fetched randomly (to be added later)
+          onSnapshot(
+            QuestionsCollection,
+            async (snapQuestion) => {
+              const questionData = snapQuestion.docs.map((item) => ({
+                ...item.data(),
+                ...{ id: item.id },
+              }));
+              const data = {
+                ...snap.data(),
+                ...{ id: snap.id, questions: questionData },
+              };
+              resolve(listener(data));
+            },
+            (err) => {
+              reject(err);
+              notify.error({
+                text: "There was a problem while fetching quiz question",
+              });
+            }
+          );
+        },
+        (err) => {
+          reject(err);
+          notify.error({
+            text: "There was an issue while retrieving quiz data",
+          });
+        }
+      );
+    } else {
+      // retrieving all quizes
+      if (status && status != "all") {
+        QuizCollection = query(QuizCollection, where("status", "==", status));
+      }
+      onSnapshot(
+        QuizCollection,
+        async (snap: any) => {
+          const data = snap.docs.map(async (item: any) => {
+            const questions = await retrieveQuestionData(item.ref);
+            return {
+              ...item.data(),
+              ...{
+                id: item.id,
+                questions,
+              },
+            };
+          });
+          Promise.all(data).then((data: any) => {
+            resolve(listener(data));
+          });
+        },
+        (err) => {
+          reject(err);
+          notify.error(
+            { text: "There was an issue while retrieving quiz data" },
+            err
+          );
+        }
+      );
+    }
+  });
+// query to delete quiz
+
+export const queryToDeleteQuiz = (id?: any) =>
+  new Promise((resolve, reject) => {
+    try {
+      const QuizCollection = collection(firestore, "Quiz");
+      const QuizDocRef = doc(QuizCollection, id);
+      deleteDoc(QuizDocRef)
+        .then((resp) => {
+          resolve(resp);
+          notify.success({ text: "Quiz has been successfully deleted." });
+        })
+        .catch((err) => {
+          reject(err);
+          notify.error({ text: "There was an error while deleting quiz" }, err);
+        });
+    } catch (error) {
+      reject(error);
+      notify.error({ text: "try/catch error while deleting quiz" }, error);
+    }
+  });
 
 // fetch user metadata
 export const queryToFetchUserMetaData = (
@@ -226,10 +397,13 @@ export const queryAppMetaData = (
       onSnapshot(
         AppMetaDataDoc,
         async (snap) => {
-          const AppMetaDocs = {
-            ...snap.data(),
-            ...{ id: snap.id, fetchedOn: new Date() },
-          };
+          let AppMetaDocs: AppMetaDataInterface | null = null;
+          if (snap.data()) {
+            AppMetaDocs = {
+              ...snap.data(),
+              ...{ id: snap.id, fetchedOn: Timestamp.now() },
+            };
+          }
           resolve(listener(AppMetaDocs));
         },
         (err) => {
@@ -381,7 +555,7 @@ export const queryToUploadFiles = (
                       user_uid: auth.currentUser?.uid,
                       slug: slug,
                       reuploadAttempt: 1,
-                      createdAt: new Date(),
+                      createdAt: Timestamp.now(),
                       media: JSON.parse(
                         JSON.stringify({ ...snapshot.metadata })
                       ),
@@ -411,7 +585,7 @@ export const queryToUploadFiles = (
                     // const ReferenceDoc = doc(firestore, snap.docs[0]);
                     const ReferenceDoc = doc(MediaCollection, snap.docs[0].id);
                     updateDoc(ReferenceDoc, {
-                      updatedAt: new Date(),
+                      // updatedAt: Timestamp.now(),
                       reuploadAttempt:
                         (snap.docs[0].data().reuploadAttempt || 0) + 1,
                     })
@@ -533,7 +707,7 @@ export const queryToGetAssetFile = (
     if (isURL(path) || dont_search) {
       resolve(path);
       return path;
-    } else {
+    } else if (!!path) {
       if (typeof path === "object") {
         let ResolvedData: object = {};
         path?.forEach(async (element: any) => {
@@ -549,6 +723,7 @@ export const queryToGetAssetFile = (
             reject(listener(ResolvedData));
           }
           if (Object.values(ResolvedData).length === 0) {
+            // no path was successfully retrieved
             reject(listener({}));
             return false;
           }
@@ -561,7 +736,6 @@ export const queryToGetAssetFile = (
           resolve(url);
         })
         .catch((error) => {
-          console.log("getAssetFile", error);
           reject(error);
         });
     }
