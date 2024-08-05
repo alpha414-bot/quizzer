@@ -109,15 +109,16 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                         id={name}
                         ref={TextInputRef}
                         name={name}
-                        value={value || ""}
+                        // value={(value && value?.value) || ""}
                         className={`${CompleteFocus ? "pt-4 pb-1" : "py-2"} ${
                           CompleteFocus ? "focus:pt-4 focus:pb-1" : "focus:py-2"
-                        } px-3 pr-10 mb-0.5 border-none outline-none bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 block w-full p-2.5`}
+                        } pl-2 pr-7 mb-0.5 border-none outline-none bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 block w-full p-2.5`}
                         placeholder={
                           value?.value
                             ? value?.value
                             : !defaultOptionKey
-                            ? `${placeholder || ""} ${
+                            ? placeholder &&
+                              `${placeholder || ""} ${
                                 rules?.required ? "(*)" : ""
                               }`
                             : _.find(
@@ -129,6 +130,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                           setShowDropdown(true);
                           handleFocus();
                         }}
+                        autoComplete="select-dropdown"
                         onBlur={handleBlur}
                         onChange={(e) => {
                           const InputValue = e.target.value;
@@ -177,7 +179,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                         }}
                       >
                         <svg
-                          className="w-3.5 h-3.5 text-white"
+                          className="w-3.5 h-3.5 text-gray-800"
                           aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -232,7 +234,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                                   }}
                                 >
                                   <div className="flex flex-col items-start gap-0.5">
-                                    <span className="font-semibold text-sm whitespace-nowrap">
+                                    <span className="font-semibold text-sm">
                                       {item?.value}
                                     </span>
                                     {item?.description && (
@@ -263,7 +265,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                       </div>
                     )}
                   </div>
-                  {CompleteFocus && (
+                  {CompleteFocus && placeholder && (
                     <label
                       htmlFor={name}
                       className={`absolute z-30 mb-0 text-gray-600 dark:text-white bg-gray-100 dark:bg-gray-700 pl-4 pr-6 py-0.5 rounded-md origin-left transform scale-75 -top-4 left-1.5 transition-all duration-400 text-lg font-semibold shadow-md shadow-gray-500 ${

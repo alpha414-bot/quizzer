@@ -1,10 +1,12 @@
+import { slate_deserialize, slate_serialize } from "@/System/functions";
 import isHotkey from "is-hotkey";
 import React, { PropsWithChildren, Ref, useCallback, useMemo } from "react";
+import { Control, Controller, RegisterOptions } from "react-hook-form";
 import {
-    createEditor,
-    Editor,
-    Element as SlateElement,
-    Transforms,
+  createEditor,
+  Editor,
+  Element as SlateElement,
+  Transforms,
 } from "slate";
 import { withHistory } from "slate-history";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
@@ -76,45 +78,10 @@ const Toolbar = React.forwardRef(
       {...props}
       data-test-id="menu"
       ref={ref}
-      className={`flex flex-row gap-4 flex-wrap items-center justify-center relative py-2 border-b-2 border-gray-50 mb-2`}
+      className={`flex flex-row gap-4 flex-wrap items-center justify-center relative py-2 border-b-2 bg-gray-100 rounded-lg border-gray-50 mb-2`}
     />
   )
 );
-
-const toggleBlock = (editor: any, format: any) => {
-  const isActive = isBlockActive(
-    editor,
-    format,
-    TEXT_ALIGN_TYPES.includes(format) ? "align" : "type"
-  );
-  const isList = LIST_TYPES.includes(format);
-
-  Transforms.unwrapNodes(editor, {
-    match: (n) =>
-      !Editor.isEditor(n) &&
-      SlateElement.isElement(n) &&
-      LIST_TYPES.includes((n as any).type) &&
-      !TEXT_ALIGN_TYPES.includes(format),
-    split: true,
-  });
-  //   let newProperties: Partial<SlateElement>;
-  let newProperties: any;
-  if (TEXT_ALIGN_TYPES.includes(format)) {
-    newProperties = {
-      align: isActive ? undefined : format,
-    };
-  } else {
-    newProperties = {
-      type: isActive ? "paragraph" : isList ? "list-item" : format,
-    };
-  }
-  Transforms.setNodes<SlateElement>(editor, newProperties);
-
-  if (!isActive && isList) {
-    const block = { type: format, children: [] };
-    Transforms.wrapNodes(editor, block);
-  }
-};
 
 const MarkButton = ({ format, icon }: { format: any; icon: any }) => {
   const editor = useSlate();
@@ -266,55 +233,142 @@ const toggleMark = (editor: any, format: any) => {
   }
 };
 
-const RichEditor = () => {
+const toggleBlock = (editor: any, format: any) => {
+  const isActive = isBlockActive(
+    editor,
+    format,
+    TEXT_ALIGN_TYPES.includes(format) ? "align" : "type"
+  );
+  const isList = LIST_TYPES.includes(format);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) &&
+      SlateElement.isElement(n) &&
+      LIST_TYPES.includes((n as any).type) &&
+      !TEXT_ALIGN_TYPES.includes(format),
+    split: true,
+  });
+  //   let newProperties: Partial<SlateElement>;
+  let newProperties: any;
+  if (TEXT_ALIGN_TYPES.includes(format)) {
+    newProperties = {
+      align: isActive ? undefined : format,
+    };
+  } else {
+    newProperties = {
+      type: isActive ? "paragraph" : isList ? "list-item" : format,
+    };
+  }
+  Transforms.setNodes<SlateElement>(editor, newProperties);
+
+  if (!isActive && isList) {
+    const block = { type: format, children: [] };
+    Transforms.wrapNodes(editor, block);
+  }
+};
+
+interface RichEditorInterface {
+  name: string;
+  control: Control;
+  rules?: RegisterOptions;
+  defaultValue?: any;
+  serialize?: "plaintext" | "html" | "json";
+}
+
+const RichEditor: React.FC<RichEditorInterface> = ({
+  name,
+  control,
+  rules,
+  defaultValue,
+  serialize = "json",
+}) => {
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-
+  const initialValue = useMemo(() => defaultValue, []);
   return (
-    <Slate
-      editor={editor}
-      initialValue={[
-        {
-          type: "paragraph",
-          children: [{ text: " " }],
-        }
-      ] as any}
-    >
-      <Toolbar>
-        <MarkButton format="bold" icon="format_bold" />
-        <MarkButton format="italic" icon="format_italic" />
-        <MarkButton format="underline" icon="format_underlined" />
-        <MarkButton format="code" icon="code" />
-        <BlockButton format="heading-one" icon="looks_one" />
-        <BlockButton format="heading-two" icon="looks_two" />
-        <BlockButton format="block-quote" icon="format_quote" />
-        <BlockButton format="numbered-list" icon="format_list_numbered" />
-        <BlockButton format="bulleted-list" icon="format_list_bulleted" />
-        <BlockButton format="left" icon="format_align_left" />
-        <BlockButton format="center" icon="format_align_center" />
-        <BlockButton format="right" icon="format_align_right" />
-        <BlockButton format="justify" icon="format_align_justify" />
-      </Toolbar>
-      <Editable
-        className="rich-editor py-2 px-3 pr-10 mb-0.5 bg-gray-100 border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 w-full p-2.5 min-h-72"
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        placeholder="Enter some rich text…"
-        spellCheck
-        autoFocus
-        onKeyDown={(event) => {
-          for (const hotkey in HOTKEYS) {
-            if (isHotkey(hotkey, event as any)) {
-              event.preventDefault();
-              const mark = HOTKEYS[hotkey];
-              console.log(mark, hotkey);
-              toggleMark(editor, mark);
-            }
-          }
-        }}
-      />
-    </Slate>
+    <Controller
+      name={name}
+      control={control}
+      rules={rules}
+      defaultValue={initialValue}
+      render={({
+        field: { onChange, onBlur, value },
+        fieldState: { error },
+      }) => {
+        return (
+          <>
+            <Slate
+              editor={editor}
+              initialValue={slate_deserialize(value)}
+              onChange={(value) => {
+                const isAstChange = editor.operations.some(
+                  (op) => "set_selection" !== op.type
+                );
+                let FinaleValue: any = value;
+                if (serialize == "html") {
+                  // serialize to html
+                  FinaleValue = slate_serialize(FinaleValue);
+                }
+                if (isAstChange) {
+                  onChange(FinaleValue || null);
+                }
+                onChange(FinaleValue || null);
+              }}
+            >
+              <Toolbar>
+                <MarkButton format="bold" icon="format_bold" />
+                <MarkButton format="italic" icon="format_italic" />
+                <MarkButton format="underline" icon="format_underlined" />
+                <MarkButton format="code" icon="code" />
+                <BlockButton format="heading-one" icon="looks_one" />
+                <BlockButton format="heading-two" icon="looks_two" />
+                <BlockButton format="block-quote" icon="format_quote" />
+                <BlockButton
+                  format="numbered-list"
+                  icon="format_list_numbered"
+                />
+                <BlockButton
+                  format="bulleted-list"
+                  icon="format_list_bulleted"
+                />
+                <BlockButton format="left" icon="format_align_left" />
+                <BlockButton format="center" icon="format_align_center" />
+                <BlockButton format="right" icon="format_align_right" />
+                <BlockButton format="justify" icon="format_align_justify" />
+              </Toolbar>
+              <Editable
+                onBlur={onBlur}
+                className="rich-editor py-2 px-3 pr-10 mb-0.5 bg-gray-100 border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 w-full p-2.5 min-h-72"
+                renderElement={renderElement}
+                renderLeaf={renderLeaf}
+                placeholder="Enter some rich text…"
+                spellCheck
+                autoFocus
+                onKeyDown={(event) => {
+                  for (const hotkey in HOTKEYS) {
+                    if (isHotkey(hotkey, event as any)) {
+                      event.preventDefault();
+                      const mark = HOTKEYS[hotkey];
+                      toggleMark(editor, mark);
+                    }
+                  }
+                }}
+              />
+            </Slate>
+            {error && (
+              <span
+                className="block mt-0.5 mb-2.5 text-xs tracking-wider font-medium underline underline-offset-4 decoration-dotted text-red-500"
+                dangerouslySetInnerHTML={{
+                  __html: error.message || "Error encountered with the input",
+                }}
+              ></span>
+            )}
+          </>
+        );
+      }}
+    />
   );
 };
 

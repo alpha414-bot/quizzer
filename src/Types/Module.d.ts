@@ -1,6 +1,5 @@
 import { Timestamp } from "firebase/firestore";
 import { FullMetadata } from "firebase/storage";
-import { extend } from "lodash";
 interface MediaItemInterface {
   id?: string;
   user_uid?: string;
@@ -22,34 +21,29 @@ interface AppMetaDataInterface {
 
 type QuizStateType = "active" | "draft" | "archive";
 
+type QuizOptionType = { key: string; value: string };
+
+interface QuizQuestionsInterface {
+  id: string;
+  question: string;
+  question_type: "dropdown" | "radio" | "signature";
+  score: number;
+  options: QuizOptionType[];
+  answer: QuizOptionType;
+  question_required?: boolean;
+}
+
 interface QuizMetaDataInterface {
   id?: string;
   slug?: string;
   title?: string;
   description?: string;
   image?: MediaItemInterface;
+  procedure?: string;
+  status?: QuizStateType;
+  average_minutes?: number;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
-  status?: QuizStateType;
-  average_minutes?: number
-}
-
-interface QuizQuestionsInterface {
-  id: string;
-  question: string;
-  question_type: // | "multiselect_dropdown"
-  // | "boolean"
-  | "dropdown"
-    | "radio"
-    // | "single_line_text"
-    // | "long_text"
-    // | "checkbox"
-    | "signature";
-  score: number;
-  options: { key?: string; value: string }[];
-  correctOption: number;
-  question_required?: boolean;
-  control?: Control;
 }
 
 interface QuizDataInterface extends QuizMetaDataInterface {

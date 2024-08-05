@@ -1,7 +1,11 @@
+import { QuizDataInterface } from "@/Types/Module";
+import escapeHtml from "escape-html";
 import { AuthError } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 import { StorageError } from "firebase/storage";
 import _ from "lodash";
+import { Text } from "slate";
+import { jsx } from "slate-hyperscript";
 
 export const NumberPattern = /^[0-9]*$/;
 export const PasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
@@ -37,7 +41,7 @@ export const isURL = (url: string): boolean => {
 export const tw = (className?: string) => {
   let ClassName = _.split(className, " ");
   ClassName = _.map(ClassName, (item) => `!${item}`);
-  return " "+_.join(ClassName, " ")+" ";
+  return " " + _.join(ClassName, " ") + " ";
 };
 
 // firebase date converter to understandable momentjs date
@@ -144,6 +148,38 @@ export const createSlug = (str: any) => {
     .value(); // Get the final string value
 };
 
+// Function to convert question object to array
+export const quizTo = (obj: any): QuizDataInterface => {
+  const result = [];
+
+  for (let key in obj) {
+    if (key.startsWith("question_") && !key.includes("/")) {
+      const questionNumber = key.split("_")[1];
+      const questionKey = `question_${questionNumber}`;
+      const question = {
+        id: obj[`${questionKey}/id`],
+        question: obj[questionKey],
+        options: [] as any,
+        score: obj[`${questionKey}/score`],
+        answer: obj[`${questionKey}/answer`],
+      };
+
+      // Iterate over options
+      let optionIndex = 1;
+      while (obj[`${questionKey}/option_${optionIndex}`]) {
+        question.options.push({
+          key: createSlug(obj[`${questionKey}/option_${optionIndex}`]),
+          value: obj[`${questionKey}/option_${optionIndex}`],
+        });
+        optionIndex++;
+      }
+
+      result.push(question);
+    }
+  }
+  return js(result);
+};
+
 // MIME_TYPE
 type MimeType = {
   [key: string]: ExtensionType[];
@@ -184,4 +220,150 @@ export const js = (data: any, stringify_only: boolean = false) => {
     return Data;
   }
   return JSON.parse(Data);
+};
+
+// Function with working with Slate Rich TextEditor
+export const slate_serialize = (node: any) => {
+  if (node) {
+    return _.join(
+      node?.map((item: any) => __serialize(item)),
+      ""
+    );
+  }
+  return "";
+};
+
+export const __serialize = (Node: any) => {
+  if (Text.isText(Node)) {
+    let string = escapeHtml(Node.text);
+    const node = Node as any;
+    if (node.bold) {
+      string = `<strong>${string}</strong>`;
+    }
+    if (node.italic) {
+      string = `<i>${string}</i>`;
+    }
+    if (node.underline) {
+      string = `<u>${string}</u>`;
+    }
+    if (node.code) {
+      string = `<code>${string}</code>`;
+    }
+    return string;
+  }
+
+  const children = Node?.children.map((n: any) => __serialize(n)).join("");
+  let style: string = "";
+  if (Node.align) {
+    style = ` style='text-align: ${Node.align};'`;
+  }
+  switch (Node.type) {
+    case "bold":
+      return `<strong>${children}</strong>`;
+    case "italic":
+      return `<i>${children}</i>`;
+    case "underline":
+      return `<u>${children}</u>`;
+    case "code":
+      return `<code>${children}</code>`;
+    case "heading-one":
+      return `<h1${style}>${children}</h1>`;
+    case "heading-two":
+      return `<h2${style}>${children}</h2>`;
+    case "block-quote":
+      return `<blockquote${style}><p>${children}</p></blockquote>`;
+    case "numbered-list":
+      return `<ol>${children}</ol>`;
+    case "bulleted-list":
+      return `<ul>${children}</ul>`;
+    case "list-item":
+      return `<li${style}>${children}</li>`;
+    case "paragraph":
+      return `<p${style}>${children}</p>`;
+    case "link":
+      return `<a href="${escapeHtml(Node.url)}">${children}</a>`;
+    default:
+      return children;
+  }
+};
+
+const ELEMENT_TAGS: object = {
+  A: (el: any) => ({ type: "link", url: el.getAttribute("href") }),
+  BLOCKQUOTE: () => ({ type: "quote" }),
+  H1: () => ({ type: "heading-one" }),
+  H2: () => ({ type: "heading-two" }),
+  H3: () => ({ type: "heading-three" }),
+  H4: () => ({ type: "heading-four" }),
+  H5: () => ({ type: "heading-five" }),
+  H6: () => ({ type: "heading-six" }),
+  IMG: (el: any) => ({ type: "image", url: el.getAttribute("src") }),
+  LI: () => ({ type: "list-item" }),
+  OL: () => ({ type: "numbered-list" }),
+  P: () => ({ type: "paragraph" }),
+  PRE: () => ({ type: "code" }),
+  UL: () => ({ type: "bulleted-list" }),
+};
+
+// COMPAT: `B` is omitted here because Google Docs uses `<b>` in weird ways.
+const TEXT_TAGS = {
+  CODE: () => ({ code: true }),
+  DEL: () => ({ strikethrough: true }),
+  EM: () => ({ italic: true }),
+  I: () => ({ italic: true }),
+  S: () => ({ strikethrough: true }),
+  STRONG: () => ({ bold: true }),
+  U: () => ({ underline: true }),
+};
+
+export const slate_deserialize = (html: any) => {
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  const fragment = deserialize(parsed.body);
+  return fragment;
+};
+
+export const deserialize = (el: any): any => {
+  if (el?.nodeType === 3) {
+    return el?.textContent;
+  } else if (el?.nodeType !== 1) {
+    return null;
+  } else if (el?.nodeName === "BR") {
+    return "\n";
+  }
+
+  const { nodeName } = el;
+  let parent = el;
+
+  if (
+    nodeName === "PRE" &&
+    el.childNodes[0] &&
+    el.childNodes[0].nodeName === "CODE"
+  ) {
+    parent = el.childNodes[0];
+  }
+  let children = Array.from(parent.childNodes).map(deserialize).flat();
+
+  if (children.length === 0) {
+    children = [{ text: "" }];
+  }
+
+  if (el.nodeName === "BODY") {
+    return jsx("fragment", {}, children);
+  }
+
+  if ((ELEMENT_TAGS as any)[nodeName]) {
+    const attrs = (ELEMENT_TAGS as any)[nodeName](el);
+    // attrs.align = "center";
+    const alignment = el?.style?.textAlign;
+    if (alignment) {
+      attrs.align = alignment;
+    }
+    return jsx("element", attrs, children);
+  }
+
+  if ((TEXT_TAGS as any)[nodeName]) {
+    const attrs = (TEXT_TAGS as any)[nodeName](el);
+    return children.map((child) => jsx("text", attrs, child));
+  }
+
+  return children;
 };

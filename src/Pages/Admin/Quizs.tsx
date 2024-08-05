@@ -214,8 +214,7 @@ const AdminQuizs = () => {
                   ].map((item, index) => (
                     <Button
                       key={index}
-                      className="relative inline-flex w-auto items-center text-white font-medium px-1 py-1 gap-1 rounded-md group"
-                      custom
+                      className="relative inline-flex w-auto items-center text-white font-medium px-0.5 py-1 gap-1 rounded-md group"
                       onClick={(e) => {
                         e.stopPropagation();
                         return item.click();
@@ -232,7 +231,7 @@ const AdminQuizs = () => {
                       >
                         {item.path}
                       </svg>
-                      <span className="hidden absolute right-[107%] transition-all ease-in-out duration-150 delay-75 text-xs underline underline-offset-2 decoration-dotted group-hover:block text-gray-700">
+                      <span className="hidden absolute right-[130%] transition-all ease-in-out duration-150 delay-75 text-xs underline underline-offset-2 decoration-dotted group-hover:block text-gray-700">
                         {item.name}
                       </span>
                     </Button>
