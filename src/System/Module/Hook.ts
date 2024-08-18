@@ -1,8 +1,5 @@
 import { AuthUserType } from "@/Types/Auth";
-import {
-  AppMetaDataInterface,
-  MediaItemInterface
-} from "@/Types/Module";
+import { AppMetaDataInterface, MediaItemInterface } from "@/Types/Module";
 import { auth } from "@/firebase-config";
 import {
   keepPreviousData,
@@ -17,6 +14,7 @@ import {
   queryToFetchUserMetaData,
   queryToGetAssetFile,
   queryToGetQuiz,
+  queryToGetQuizQuestion,
   queryUserMedia,
 } from "./Query";
 
@@ -166,13 +164,33 @@ export const useBlob = (key: any, size: number = 300) => {
 
 export const useQuiz = <T>(id?: any, status?: string) => {
   const queryClient = useQueryClient();
-  const queryKey = ["quiz", id || "all", status];
-  const snapshotListener = useCallback((data: any) => {
-    queryClient.setQueryData(queryKey, data);
-    return data;
-  }, [status, id]);
+  const queryKey = ["quiz", id || "all", status || "none"];
+  const snapshotListener = useCallback(
+    (data: any) => {
+      queryClient.setQueryData(queryKey, data);
+      return data;
+    },
+    [status, id]
+  );
   return useQuery({
     queryKey,
     queryFn: (): Promise<T> => queryToGetQuiz(snapshotListener, id, status),
+  });
+};
+
+export const useQuestion = <T>(quiz_id: any, id: any) => {
+  const queryClient = useQueryClient();
+  const queryKey = ["question", id];
+  const snapshotListener = useCallback(
+    (data: any) => {
+      queryClient.setQueryData(queryKey, data);
+      return data;
+    },
+    [quiz_id, id]
+  );
+  return useQuery({
+    queryKey,
+    queryFn: (): Promise<T> =>
+      queryToGetQuizQuestion(snapshotListener, quiz_id, id),
   });
 };

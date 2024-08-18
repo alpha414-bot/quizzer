@@ -6,7 +6,6 @@ export default {
     "./node_modules/flowbite/**/*.js",
   ],
   darkMode: "selector",
-  important: true,
   theme: {
     fontFamily: {
       exo: ["Exo", "sans-serif"],

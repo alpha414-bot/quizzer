@@ -214,7 +214,7 @@ const AdminQuizs = () => {
                   ].map((item, index) => (
                     <Button
                       key={index}
-                      className="relative inline-flex w-auto items-center text-white font-medium px-0.5 py-1 gap-1 rounded-md group"
+                      className="relative inline-flex w-auto items-center text-white font-medium !px-0.5 !py-1 gap-1 rounded-md group"
                       onClick={(e) => {
                         e.stopPropagation();
                         return item.click();

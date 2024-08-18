@@ -79,3 +79,5 @@ interface ToastWrapperProps {
   title?: any;
   text: any;
 }
+
+type Object = { [key: string]: unknown };

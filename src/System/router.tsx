@@ -3,10 +3,11 @@ import Admin from "@/Layouts/Admin";
 import App from "@/Layouts/App";
 import AdminAppSettings from "@/Pages/Admin/AppSettings";
 import AdminDashboard from "@/Pages/Admin/Dashboard";
+import EditQuiz from "@/Pages/Admin/EditQuiz";
 import AdminLogin from "@/Pages/Admin/Login";
 import NewQuiz from "@/Pages/Admin/NewQuiz";
 import AdminQuizs from "@/Pages/Admin/Quizs";
-import EditQuiz from "@/Pages/Admin/EditQuiz";
+import SubQuestionOutlet from "@/Pages/Admin/SubQuestionOutlet";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
@@ -202,7 +203,11 @@ const routes: RouteObject[] = [
       { path: "users/:state", element: <p>users list</p> },
       { path: "q/:state", element: <AdminQuizs /> },
       { path: "new/quiz", element: <NewQuiz /> },
-      { path: "quiz/edit/:id", element: <EditQuiz /> },
+      {
+        path: "quiz/edit/:id",
+        element: <EditQuiz />,
+        children: [{ path: ":question_id", element: <SubQuestionOutlet /> }],
+      },
       { path: "quizzes", element: <p>Quizzes</p> },
       { path: "app/settings", element: <AdminAppSettings /> },
       {

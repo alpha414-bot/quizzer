@@ -21,7 +21,7 @@ interface AppMetaDataInterface {
 
 type QuizStateType = "active" | "draft" | "archive";
 
-type QuizOptionType = { key: string; value: string };
+type QuizOptionType = { key: string; value: string; unique?: string };
 
 interface QuizQuestionsInterface {
   id: string;
@@ -29,7 +29,7 @@ interface QuizQuestionsInterface {
   question_type: "dropdown" | "radio" | "signature";
   score: number;
   options: QuizOptionType[];
-  answer: QuizOptionType;
+  answer: string;
   question_required?: boolean;
 }
 

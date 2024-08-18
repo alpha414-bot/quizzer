@@ -1,4 +1,4 @@
-import { QuizDataInterface } from "@/Types/Module";
+import { QuizDataInterface, QuizQuestionsInterface } from "@/Types/Module";
 import escapeHtml from "escape-html";
 import { AuthError } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
@@ -32,9 +32,11 @@ export const getErrorMessageViaStatus = (error: RouteErrorInterface) => {
   }
 };
 
-export const isURL = (url: string): boolean => {
-  const pattern = new RegExp("^(?:[a-z]+:)?//", "i");
-  return pattern.test(url);
+export const isUrl = (url: string): boolean => {
+  const pattern =
+    /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
+  // const pattern = new RegExp("^(?:[a-z]+:)?//", "i");
+  return pattern.test(encodeURI(url));
 };
 
 // prioritize tailwindcss
@@ -121,8 +123,17 @@ export const removeFileExtension = (filename: string) => {
   return filename;
 };
 
+// function to strip html tags css classes and everything else
+export const stripHtml = (text?: string) => {
+  if (typeof text === "string") {
+    const regex = /(<([^>]+)>)/gi;
+    const result = (text || ("" as string)).replace(regex, "");
+    return (result as string).toString().trim();
+  }
+};
+
 // Function to generate a random string of specified length
-const generateRandomString = (length: number) => {
+export const generateRandomString = (length: number) => {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   return _.times(length, () =>
@@ -156,28 +167,30 @@ export const quizTo = (obj: any): QuizDataInterface => {
     if (key.startsWith("question_") && !key.includes("/")) {
       const questionNumber = key.split("_")[1];
       const questionKey = `question_${questionNumber}`;
+      const id = obj[`${questionKey}/id`];
       const question = {
-        id: obj[`${questionKey}/id`],
+        id: id,
         question: obj[questionKey],
-        options: [] as any,
-        score: obj[`${questionKey}/score`],
+        score: Number(obj[`${questionKey}/score`]),
         answer: obj[`${questionKey}/answer`],
       };
-
-      // Iterate over options
-      let optionIndex = 1;
-      while (obj[`${questionKey}/option_${optionIndex}`]) {
-        question.options.push({
-          key: createSlug(obj[`${questionKey}/option_${optionIndex}`]),
-          value: obj[`${questionKey}/option_${optionIndex}`],
-        });
-        optionIndex++;
-      }
-
       result.push(question);
     }
   }
   return js(result);
+};
+
+export const quizToForm = (obj?: QuizQuestionsInterface[]) => {
+  const result: any = {};
+  if (obj) {
+    obj.map((item) => {
+      result[`question_${item.id}/id`] = item.id;
+      result[`question_${item.id}`] = item.question;
+      result[`question_${item.id}/score`] = Number(item.score).toString();
+      result[`question_${item.id}/answer`] = item.answer;
+    });
+  }
+  return result;
 };
 
 // MIME_TYPE
@@ -281,7 +294,12 @@ export const __serialize = (Node: any) => {
     case "paragraph":
       return `<p${style}>${children}</p>`;
     case "link":
-      return `<a href="${escapeHtml(Node.url)}">${children}</a>`;
+      let url: any = escapeHtml(stripHtml(Node.url));
+      let children_url = escapeHtml(stripHtml(children));
+      if (isUrl(children_url)) {
+        url = children_url;
+      }
+      return `<a href="${url}">${children}</a>`;
     default:
       return children;
   }

@@ -17,7 +17,11 @@ const NewQuiz = () => {
   const setupQuizMetaData: SubmitHandler<QuizMetaDataInterface> = (data) => {
     queryToStoreQuizMetaData({
       ...js(data),
-      ...{ slug: createSlug(data.title), status: "draft" },
+      ...{
+        slug: createSlug(data.title),
+        status: "draft",
+        procedure: "<p><strong>Enter the procedure here</strong></p>",
+      },
     }).then((resp: any) => {
       if (!resp?.error) {
         navigate(`/admin/quiz/edit/${resp?.id}`);
@@ -30,32 +34,38 @@ const NewQuiz = () => {
         className="space-y-6 px-4"
         onSubmit={handleSubmit(setupQuizMetaData)}
       >
-        <div className="flex items-start py-4 gap-2 justify-between">
-          <div className="grow mt-3 px-3 space-y-5">
-            <Input
-              name="title"
-              control={control}
-              className="text-3xl placeholder:text-2xl"
-              placeholder="Title"
-              rules={{ required: "Title is required" }}
-            />
-            <TextArea
-              name="description"
-              control={control}
-              className="text-2xl placeholder:text-2xl"
-              placeholder="Description"
-              rules={{ required: "Description is required" }}
-              rows={5}
-            />
-          </div>
-          <div className="min-w-48">
-            <MediaModal
-              control={control}
-              name="image"
-              placeholder="Image"
-              align="col"
-              rules={{ required: "Image is required" }}
-            />
+        <div>
+          <p className="text-sm">
+            You are about to create a new quiz, enter image, title and
+            description for your quiz.
+          </p>
+          <div className="flex items-start py-4 gap-2 justify-between">
+            <div className="grow px-3 space-y-5">
+              <Input
+                name="title"
+                control={control}
+                className="text-xl placeholder:text-xl !py-3"
+                placeholder="Title"
+                rules={{ required: "Title is required" }}
+              />
+              <TextArea
+                name="description"
+                control={control}
+                className="text-xl placeholder:text-xl"
+                placeholder="Description"
+                rules={{ required: "Description is required" }}
+                rows={5}
+              />
+            </div>
+            <div className="min-w-48">
+              <MediaModal
+                control={control}
+                name="image"
+                placeholder="Image"
+                align="col"
+                rules={{ required: "Image is required" }}
+              />
+            </div>
           </div>
         </div>
         <div className="flex justify-end">

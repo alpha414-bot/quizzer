@@ -40,8 +40,9 @@ import {
   AuthErrorFilter,
   createSlug,
   generateRandomFileName,
+  generateRandomString,
   getFileExtension,
-  isURL,
+  isUrl,
   js,
   removeFileExtension,
 } from "../functions";
@@ -71,7 +72,7 @@ const retrieveQuestionData = (ref: DocumentReference) =>
     );
   });
 
-// query to store metadata of surveys
+// query to store metadata of quizs
 export const queryToStoreQuizMetaData = (data: QuizMetaDataInterface) =>
   new Promise((resolve, reject) => {
     try {
@@ -85,7 +86,9 @@ export const queryToStoreQuizMetaData = (data: QuizMetaDataInterface) =>
             updatedAt: Timestamp.now(),
           })
             .then((resp) => {
-              resolve({ ...{ id: resp.id }, ...data });
+              queryToAddQuizQuestion(resp.id).then(() => {
+                resolve({ ...{ id: resp.id }, ...data });
+              });
             })
             .catch((err) => {
               notify.error(
@@ -113,7 +116,7 @@ export const queryToStoreQuizMetaData = (data: QuizMetaDataInterface) =>
     }
   });
 
-// query to quiz questions and store data
+// query to update quiz and questions
 export const queryToUpdateQuiz = (id: string, data: QuizDataInterface) =>
   new Promise(async (resolve, reject) => {
     try {
@@ -124,17 +127,17 @@ export const queryToUpdateQuiz = (id: string, data: QuizDataInterface) =>
           if (data.procedure) {
             transact.update(SpecificQuizDoc, {
               procedure: data.procedure,
-              updatedAt: new Date(),
             });
           }
+          const Snap = await getDocs(collection(SpecificQuizDoc, "questions"));
+          Snap?.docs?.forEach(async (doc) => {
+            transact.update(doc.ref, {
+              ...js(_.find(data.questions, (e) => e.id == doc.id)),
+            });
+          });
           // go to the doc of each specific questions and update what needs to be updated
-          data?.questions?.forEach(async (item) => {
-            transact.update(
-              doc(collection(SpecificQuizDoc, "questions"), item.id),
-              {
-                ...js(item),
-              }
-            );
+          transact.update(SpecificQuizDoc, {
+            updatedAt: Timestamp.now(),
           });
         })
           .then(resolve)
@@ -235,6 +238,132 @@ export const queryToGetQuiz = <T>(
     }
   });
 
+// query to get question from a quiz
+export const queryToGetQuizQuestion = <T>(
+  listener: any,
+  quiz_id: any,
+  id: any
+): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const QuestionDoc = doc(
+      collection(doc(collection(firestore, "Quiz"), quiz_id), "questions"),
+      id
+    );
+    onSnapshot(
+      QuestionDoc,
+      async (snap) => {
+        resolve(listener({ ...snap.data(), ...{ id: snap.id } }));
+      },
+      (err) => {
+        reject(err);
+        notify.error(
+          { text: "There was an error while retrieving quiz question" },
+          err
+        );
+      }
+    );
+  });
+
+// query to add question
+export const queryToAddQuizQuestion = (quiz_id?: any) =>
+  new Promise((resolve, reject) => {
+    try {
+      const QuizCollection = collection(firestore, "Quiz");
+      const TargetQuizDoc = doc(QuizCollection, quiz_id);
+      const QuestionsCollection = collection(TargetQuizDoc, "questions");
+      runTransaction(firestore, async (transact) => {
+        transact.update(TargetQuizDoc, {
+          updatedAt: Timestamp.now(),
+        });
+        const options = [
+          { key: generateRandomString(32), value: "Option 1" },
+          { key: generateRandomString(32), value: "Option-2" },
+        ];
+        transact.set(
+          doc(QuestionsCollection, generateRandomString(_.random(18, 22))),
+          {
+            question: "Enter your question here",
+            options: options,
+            questionType: "dropdown",
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+            score: 0,
+            answer: options[0].key,
+          },
+          { merge: true }
+        );
+      })
+        .then((resp) => {
+          resolve(resp);
+        })
+        .catch((err) => {
+          reject(err);
+          notify.error(
+            { text: "There was an issue while adding question" },
+            err
+          );
+        });
+    } catch (error) {
+      reject(error);
+      notify.error({
+        text: "There was error while adding question to quiz",
+      });
+    }
+  });
+
+// query to update question
+export const queryToUpdateQuestion = (quiz_id: any, id: any, data: any) =>
+  new Promise((resolve, reject) => {
+    try {
+      const QuizCollection = collection(firestore, "Quiz");
+      const QuestionDoc = doc(
+        collection(doc(QuizCollection, quiz_id), "questions"),
+        id
+      );
+      updateDoc(QuestionDoc, { ...js(data), ...{ updatedAt: Timestamp.now() } })
+        .then(resolve)
+        .catch((err) => {
+          reject(err);
+          notify.error(
+            { text: "There was an error when question was been updated." },
+            err
+          );
+        });
+    } catch (error) {
+      reject(error);
+      notify.error({ text: "There was an issue while updating question" });
+    }
+  });
+
+// query to delete question
+export const queryToDeleteQuizQuestion = (quiz_id: any, id: any) =>
+  new Promise((resolve, reject) => {
+    try {
+      const QuizCollection = collection(firestore, "Quiz");
+      const QuizDoc = doc(QuizCollection, quiz_id);
+      runTransaction(firestore, async (transact) => {
+        transact.update(QuizDoc, {
+          updatedAt: Timestamp.now(),
+        });
+        transact.delete(doc(collection(QuizDoc, "questions"), id));
+      })
+        .then((resp) => {
+          resolve(resp);
+        })
+        .catch((err) => {
+          reject(err);
+          notify.error({
+            text: "There was an error while delete question docs",
+          });
+        });
+    } catch (error) {
+      reject(error);
+      notify.error({
+        text: "There was error while adding a new question to quiz",
+      });
+    }
+  });
+
 // query to delete quiz
 export const queryToDeleteQuiz = (id?: any) =>
   new Promise((resolve, reject) => {
@@ -253,73 +382,6 @@ export const queryToDeleteQuiz = (id?: any) =>
     } catch (error) {
       reject(error);
       notify.error({ text: "try/catch error while deleting quiz" }, error);
-    }
-  });
-// query to add question
-export const queryToAddQuizQuestion = (quiz_id?: any) =>
-  new Promise((resolve, reject) => {
-    try {
-      const QuizCollection = collection(firestore, "Quiz");
-      const TargetQuizDoc = doc(QuizCollection, quiz_id);
-      const QuestionsCollection = collection(TargetQuizDoc, "questions");
-      addDoc(QuestionsCollection, {
-        question: "Enter your question here",
-        options: [
-          { key: "option-1", value: "Option 1" },
-          { key: "option-2", value: "Option-2" },
-        ],
-        questionType: "dropdown",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        score: 0,
-        answer: { key: "option-1", value: "Option 1" },
-      })
-        .then((resp) => {
-          resolve(resp);
-          notify.success({ text: "Question has been added successfully" });
-        })
-        .catch((err) => {
-          reject(err);
-          notify.error(
-            { text: "There was an issue while adding question" },
-            err
-          );
-        });
-    } catch (error) {
-      reject(error);
-      notify.error({
-        text: "There was error while adding question to quiz",
-      });
-    }
-  });
-
-// query to delete question
-export const queryToDeleteQuizQuestion = (quiz_id: any, id: any) =>
-  new Promise((resolve, reject) => {
-    try {
-      const QuizCollection = collection(firestore, "Quiz");
-      const SpecificQuestionDoc = doc(
-        collection(doc(QuizCollection, quiz_id), "questions"),
-        id
-      );
-      deleteDoc(SpecificQuestionDoc)
-        .then((resp) => {
-          resolve(resp);
-          notify.success({
-            text: "The question has been successfully deleted",
-          });
-        })
-        .catch((err) => {
-          reject(err);
-          notify.error({
-            text: "There was an error while delete question docs",
-          });
-        });
-    } catch (error) {
-      reject(error);
-      notify.error({
-        text: "There was error while adding a new question to quiz",
-      });
     }
   });
 
@@ -818,7 +880,7 @@ export const queryToGetAssetFile = (
   dont_search: boolean = false
 ): Promise<string | object> =>
   new Promise((resolve, reject) => {
-    if (isURL(path) || dont_search) {
+    if (isUrl(path) || dont_search) {
       resolve(path);
       return path;
     } else if (!!path) {

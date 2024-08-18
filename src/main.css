@@ -25,6 +25,9 @@
   .rich-editor code {
     @apply inline-block font-mono bg-gray-300 p-0.5 my-1 !important;
   }
+  .rich-editor a span {
+    @apply font-mono underline underline-offset-2 text-blue-400 !important;
+  }
 
   /* custom scroll behaviour */
   .fine-scroll {

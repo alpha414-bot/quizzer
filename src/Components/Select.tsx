@@ -8,7 +8,7 @@ interface SelectInputProps
   isFocused?: boolean;
   control: Control;
   rules?: RegisterOptions;
-  updateOnChange?: any;
+  beforeOnChange?: any;
   placeholder?: string;
   options: DropdownOptionsType[];
 }
@@ -23,7 +23,7 @@ const Select = forwardRef<HTMLSelectElement, SelectInputProps>(
       name,
       rules,
       defaultValue,
-      updateOnChange = (data: any) => data,
+      beforeOnChange = (data: any) => data,
       disabled,
       options,
       ...props
@@ -83,9 +83,9 @@ const Select = forwardRef<HTMLSelectElement, SelectInputProps>(
                           selectedValues.push(options[i].value);
                         }
                       }
-                      updateOnChange(onChange(selectedValues));
+                      onChange(beforeOnChange(selectedValues));
                     } else {
-                      updateOnChange(onChange(e.target.value));
+                      onChange(beforeOnChange(e.target.value));
                     }
                   }}
                   className={`${FieldValue ? "pt-4 pb-1" : "py-2"} ${

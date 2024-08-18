@@ -18,7 +18,17 @@ const Img: React.FC<ImgInterface> = ({
 }) => {
   const { data: path, isFetched } = useMediaFile(src);
   if (type === "image") {
-    return <>{isFetched && <img src={path} {...props} />}</>;
+    return (
+      <>
+        {isFetched && (
+          <>
+            {" "}
+            <img src={path} {...props} />
+            {child}
+          </>
+        )}
+      </>
+    );
   } else if (type === "background") {
     return (
       <>

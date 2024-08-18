@@ -7,7 +7,8 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   isFocused?: boolean;
   control: Control;
   rules?: RegisterOptions;
-  updateOnChange?: any;
+  beforeOnChange?: any;
+  floating?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
@@ -19,8 +20,9 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
     name,
     rules,
     defaultValue,
-    updateOnChange = (data: any) => data,
+    beforeOnChange = (data: any) => data,
     disabled,
+    floating = true,
     ...props
   },
   ref: any
@@ -65,7 +67,9 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
             }
           };
           const CompleteFocus =
-            (!!value || focus || !!input?.current?.value) && placeholder;
+            (!!FieldValue || focus || !!input?.current?.value) &&
+            placeholder &&
+            floating;
           return (
             <>
               <div
@@ -78,17 +82,15 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
                     ref={input}
                     id={name}
                     disabled={disabled}
-                    className={`${
-                      FieldValue && placeholder ? "pt-4 pb-1" : "py-2"
-                    } ${
-                      placeholder ? "focus:pt-4 focus:pb-1" : "focus:py-2"
-                    } px-3 pr-10 mb-0.5 ${
+                    className={`${CompleteFocus ? "pt-4 pb-1" : "py-2"} ${
+                      CompleteFocus ? "focus:pt-4 focus:pb-1" : "focus:py-2"
+                    } ${props.type === "password" ? "pr-10" : "px-3"} mb-0.5 ${
                       disabled
                         ? "bg-gray-200 cursor-not-allowed"
                         : "bg-gray-100 dark:bg-gray-700"
                     } border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 ${
                       props.type !== "checkbox" ? "block w-full" : ""
-                    } p-2.5 ${className} `}
+                    } ${className} `}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     placeholder={
@@ -111,7 +113,8 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
                       } else if (props.type === "checkbox") {
                         value = !!e.target.checked;
                       }
-                      return updateOnChange(onChange(value));
+                      beforeOnChange(value);
+                      return onChange(value);
                     }}
                     {...props}
                   />

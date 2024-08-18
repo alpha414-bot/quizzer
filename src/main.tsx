@@ -9,6 +9,7 @@ import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./main.css";
 import { Client, router } from "./System/router";
+import _ from "lodash";
 
 Sentry.init({
   dsn: "https://37c6b8f26afa5e401bd456cfbb741d0b@o4506495001755648.ingest.us.sentry.io/4507635033047040",
@@ -51,3 +52,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </HelmetProvider>
   </React.StrictMode>
 );
+
+window._ = _;
