@@ -25,11 +25,12 @@
 
     /* Path aliasing */
     "baseUrl": ".",
-    "typeRoots": ["./src/types"],
+    "typeRoots": ["./src/Types"],
     "paths": {
       "@/*": ["src/*"],
       "@services/*": ["src/services/*"]
     }
   },
   "include": ["src/**/*.d.ts", "src/**/*.tsx", "src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

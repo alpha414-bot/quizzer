@@ -4,20 +4,25 @@ import { useQuiz } from "@/System/Module/Hook";
 import { QuizDataInterface, QuizQuestionsInterface } from "@/Types/Module";
 import moment from "moment";
 import { useEffect, useState } from "react";
-// Import the Slate components and React plugin.
 import LinkAsButton from "@/Components/LinkAsButton";
-import QuestionForm from "@/Components/QuestionForm";
+import QuestionForm from "@/Components/Quiz/QuestionForm";
 import RichEditor from "@/Components/RichEditor";
-import {
-  queryToAddQuizQuestion,
-  queryToUpdateQuiz,
-} from "@/System/Module/Query";
 import { useForm, useWatch } from "react-hook-form";
 import { useParams } from "react-router-dom";
+import { queryToUpdateQuiz } from "@/System/Module/Query/Quiz";
+import { queryToAddQuestion } from "@/System/Module/Query/QuizQuestion";
 
 const EditQuiz = () => {
   const { id } = useParams();
-  const { data: q } = useQuiz<QuizDataInterface>(id);
+  const { data: q, isFetched } = useQuiz<QuizDataInterface>(id);
+  useEffect(() => {
+    if (isFetched && !q?.title) {
+      throw new Response("Not Found", {
+        status: 404,
+        statusText: "Not Found",
+      });
+    }
+  }, [q]);
   const [questions, setQuestions] = useState<QuizQuestionsInterface[]>([]);
   const [activeQuestion, setActiveQuestion] = useState<number>(0);
   const [deletingQuestion, setDeletingQuestion] = useState<boolean>(false);
@@ -133,18 +138,18 @@ const EditQuiz = () => {
                   <path d="M13.383 4.076a6.5 6.5 0 0 0-6.887 3.95A5 5 0 0 0 7 18h3v-4a2 2 0 0 1-1.414-3.414l2-2a2 2 0 0 1 2.828 0l2 2A2 2 0 0 1 14 14v4h4a4 4 0 0 0 .988-7.876 6.5 6.5 0 0 0-5.605-6.048Z" />
                   <path d="M12.707 9.293a1 1 0 0 0-1.414 0l-2 2a1 1 0 1 0 1.414 1.414l.293-.293V19a1 1 0 1 0 2 0v-6.586l.293.293a1 1 0 0 0 1.414-1.414l-2-2Z" />
                 </svg>
-                {savingDataState ? "Saving..." : "Saved"}
+                {savingDataState ? "..." : ""}
               </div>
             </div>
           </div>
         </div>
         <hr />
-        <div className="flex flex-col items-stretch justify-between gap-6 mt-4 lg:flex-row lg:items-start">
+        <div className="flex flex-col items-stretch justify-between gap-x-6 gap-y-2 mt-4 lg:flex-row lg:items-start">
           {/* Questions List */}
           <div className="grow lg:w-[50%]">
-            <div className="flex items-center justify-between gap-2 flex-nowrap">
-              <div className="grid grid-cols-5 gap-2">
-                {questions?.map((item, index) => {
+            <div className="flex items-center justify-between gap-4 flex-nowrap">
+              <div className="grid grid-cols-5 gap-2 w-full">
+                {q?.questions?.map((item, index) => {
                   return (
                     <button
                       key={index}
@@ -152,11 +157,32 @@ const EditQuiz = () => {
                       onClick={() => {
                         setActiveQuestion(index);
                       }}
-                      className={`border ${
-                        activeQuestion === index && "bg-purple-600 text-white"
-                      } font-bold px-4 py-1 text-sm text-center rounded-md`}
+                      className={`${
+                        activeQuestion === index
+                          ? "bg-purple-600 text-white"
+                          : "border border-gray-500 text-gray-800"
+                      } font-bold py-1 text-sm text-center rounded-md flex items-center ${
+                        !!item.invisible
+                          ? "px-3 justify-between"
+                          : "justify-center"
+                      } gap-1`}
                     >
-                      Q{index + 1}
+                      Q{index + 1}{" "}
+                      {!!item.invisible && (
+                        <svg
+                          className="w-4 h-4"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="m4 15.6 3.055-3.056A4.913 4.913 0 0 1 7 12.012a5.006 5.006 0 0 1 5-5c.178.009.356.027.532.054l1.744-1.744A8.973 8.973 0 0 0 12 5.012c-5.388 0-10 5.336-10 7A6.49 6.49 0 0 0 4 15.6Z" />
+                          <path d="m14.7 10.726 4.995-5.007A.998.998 0 0 0 18.99 4a1 1 0 0 0-.71.305l-4.995 5.007a2.98 2.98 0 0 0-.588-.21l-.035-.01a2.981 2.981 0 0 0-3.584 3.583c0 .012.008.022.01.033.05.204.12.402.211.59l-4.995 4.983a1 1 0 1 0 1.414 1.414l4.995-4.983c.189.091.386.162.59.211.011 0 .021.007.033.01a2.982 2.982 0 0 0 3.584-3.584c0-.012-.008-.023-.011-.035a3.05 3.05 0 0 0-.21-.588Z" />
+                          <path d="m19.821 8.605-2.857 2.857a4.952 4.952 0 0 1-5.514 5.514l-1.785 1.785c.767.166 1.55.25 2.335.251 6.453 0 10-5.258 10-7 0-1.166-1.637-2.874-2.179-3.407Z" />
+                        </svg>
+                      )}
                     </button>
                   );
                 })}
@@ -165,7 +191,7 @@ const EditQuiz = () => {
                 type="button"
                 className=""
                 onClick={() => {
-                  queryToAddQuizQuestion(id);
+                  queryToAddQuestion(id);
                   setActiveQuestion(questions.length);
                 }}
               >

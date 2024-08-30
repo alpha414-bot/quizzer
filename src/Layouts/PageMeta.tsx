@@ -1,5 +1,5 @@
 import { auth } from "@/firebase-config";
-import { useApp } from "@/System/Module/Hook";
+import { useApp, useMediaFile } from "@/System/Module/Hook";
 import { initFlowbite } from "flowbite";
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
@@ -12,17 +12,18 @@ const PageMeta: React.FC<{
 }> = ({ children, title = "", description, admin }) => {
   // later title and description won't be necessary has that would be depended on the sitemap
   const { data: app } = useApp();
+  const { data: Favicon } = useMediaFile(app?.favicon?.media.fullPath);
   useEffect(() => {
     initFlowbite();
   }, [auth]);
   return (
     <>
-      <p></p>
       <Helmet>
         <title>
           {title} {admin ? `- Admin` : ""}{" "}
           {app?.name ? `- ${app?.name?.toString()}` : ""}
         </title>
+        <link rel="icon" type="image/svg+xml" href={Favicon || ""} />
         <link rel="canonical" href={window.location.origin} />
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />

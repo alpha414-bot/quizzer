@@ -9,14 +9,12 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { useCallback, useEffect } from "react";
 import { notify } from "../notify";
-import {
-  queryAppMetaData,
-  queryToFetchUserMetaData,
-  queryToGetAssetFile,
-  queryToGetQuiz,
-  queryToGetQuizQuestion,
-  queryUserMedia,
-} from "./Query";
+import { queryAppMetaData } from "./Query";
+import { queryToGetUserData } from "./Query/Auth";
+import { queryToGetAssetFile, queryUserMedia } from "./Query/Media";
+import { queryToGetQuiz } from "./Query/Quiz";
+import { queryToGetQuestion } from "./Query/QuizQuestion";
+import { queryToGetResult } from "./Query/QuizResult";
 
 export const useAuthUser = () => {
   const queryClient = useQueryClient();
@@ -24,7 +22,7 @@ export const useAuthUser = () => {
     onAuthStateChanged(auth, (user) => {
       // for syncing all query data if auth user is changed
       if (user?.uid) {
-        queryToFetchUserMetaData(user.uid).then((metadata) => {
+        queryToGetUserData(user.uid).then((metadata) => {
           queryClient.setQueryData(["auth_user"], {
             ...user,
             ...{ metadata },
@@ -43,7 +41,7 @@ export const useAuthUser = () => {
         onAuthStateChanged(auth, (user) => {
           try {
             if (user?.uid) {
-              queryToFetchUserMetaData(user.uid).then((metadata) => {
+              queryToGetUserData(user.uid).then((metadata) => {
                 resolve({ ...user, ...{ metadata } });
               });
             } else {
@@ -85,18 +83,30 @@ export const useApp = () => {
   });
 };
 
-export const useMediaFile = (key: any) => {
+export const useMediaFile = (
+  path: any,
+  dont_look_into_firebase_instead_public_folder: boolean = false
+) => {
   const queryClient = useQueryClient();
+  const queryKey = ["asset_file", path];
   const snapshotListener = useCallback(
     (data: any) => {
-      return queryClient.setQueryData(["asset_file", key], data);
+      if (!dont_look_into_firebase_instead_public_folder) {
+        return queryClient.setQueryData(queryKey, data);
+      } else {
+        return queryClient.setQueryData(queryKey, path);
+      }
     },
-    [queryClient, key]
+    [queryClient, path]
   );
   return useQuery({
-    queryKey: ["asset_file", key],
+    queryKey: queryKey,
     queryFn: (): Promise<any> =>
-      queryToGetAssetFile(key, snapshotListener).catch((error: any) => {
+      queryToGetAssetFile(
+        path,
+        snapshotListener,
+        dont_look_into_firebase_instead_public_folder
+      ).catch((error: any) => {
         let ErrorText;
         switch (error.code) {
           case "storage/object-not-found":
@@ -127,7 +137,7 @@ export const useMediaFile = (key: any) => {
           error
         );
       }),
-    placeholderData: typeof key === "object" ? [] : "",
+    placeholderData: typeof path === "object" ? [] : "",
   });
 };
 
@@ -178,6 +188,22 @@ export const useQuiz = <T>(id?: any, status?: string) => {
   });
 };
 
+export const useQuizResult = <T>(id?: any) => {
+  const queryClient = useQueryClient();
+  const queryKey = ["quizResult", id || "all"];
+  const snapshotListener = useCallback(
+    (data: any) => {
+      queryClient.setQueryData(queryKey, data);
+      return data;
+    },
+    [id]
+  );
+  return useQuery({
+    queryKey,
+    queryFn: (): Promise<T> => queryToGetResult(snapshotListener, id),
+  });
+};
+
 export const useQuestion = <T>(quiz_id: any, id: any) => {
   const queryClient = useQueryClient();
   const queryKey = ["question", id];
@@ -191,6 +217,6 @@ export const useQuestion = <T>(quiz_id: any, id: any) => {
   return useQuery({
     queryKey,
     queryFn: (): Promise<T> =>
-      queryToGetQuizQuestion(snapshotListener, quiz_id, id),
+      queryToGetQuestion(snapshotListener, quiz_id, id),
   });
 };

@@ -13,7 +13,7 @@ export default {
     },
   },
   plugins: [
-    require("flowbite/plugin"),
+    require("flowbite/plugin")({ charts: true }),
     function ({ addUtilities, theme, e }) {
       const colors = theme("colors");
       const baseColorUtilities = {};

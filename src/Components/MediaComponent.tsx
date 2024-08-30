@@ -1,6 +1,6 @@
 import { fm, shorten } from "@/System/functions";
 import { useMediaFile } from "@/System/Module/Hook";
-import { queryToDeleteFiles } from "@/System/Module/Query";
+import { queryToDeleteFiles } from "@/System/Module/Query/Media";
 import { MediaItemInterface } from "@/Types/Module";
 import { initFlowbite, Modal } from "flowbite";
 import _ from "lodash";

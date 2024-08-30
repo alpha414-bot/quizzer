@@ -5,11 +5,10 @@ import LoadingBar from "react-top-loading-bar";
 
 const App: React.FC<{
   children: React.ReactNode;
-  title: string;
-  description?: string;
+  no_margin?: boolean;
   no_navbar?: boolean;
   no_footer?: boolean;
-}> = ({ children, title, description, no_navbar, no_footer }) => {
+}> = ({ children, no_margin, no_navbar, no_footer }) => {
   const [showLoadingBar, setShowLoadingBar] = useState<boolean>(false);
   useLayoutEffect(() => {
     setShowLoadingBar(true);
@@ -24,10 +23,7 @@ const App: React.FC<{
           progress={100}
         />
       )}
-
-      <meta name="description" content={description} />
-      <title>{title} - Quizzer</title>
-      <div className="px-12">
+      <div className={no_margin ? "" : "px-12"}>
         {!no_navbar && <Navbar />}
         <div id="page" className="relative z-10">
           <div id="wrapper">{children}</div>

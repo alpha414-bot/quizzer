@@ -1,15 +1,18 @@
 import Spinner from "@/Components/Spinner";
 import Admin from "@/Layouts/Admin";
 import App from "@/Layouts/App";
+import PageMeta from "@/Layouts/PageMeta";
 import AdminAppSettings from "@/Pages/Admin/AppSettings";
 import AdminDashboard from "@/Pages/Admin/Dashboard";
 import EditQuiz from "@/Pages/Admin/EditQuiz";
 import AdminLogin from "@/Pages/Admin/Login";
-import NewQuiz from "@/Pages/Admin/NewQuiz";
 import AdminQuizs from "@/Pages/Admin/Quizs";
 import SubQuestionOutlet from "@/Pages/Admin/SubQuestionOutlet";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
+import CertificateVerifier from "@/Pages/Quiz/CertificateVerifier";
+import QuizPage from "@/Pages/Quiz/QuizPage";
+import TestPage from "@/Pages/TestPage";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { QueryClient } from "@tanstack/react-query";
 import { compress, decompress } from "lz-string";
@@ -23,7 +26,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useAuthUser } from "./Module/Hook";
-import { logout, queryToRegister } from "./Module/Query";
+import { queryToStoreAppMetaData } from "./Module/Query";
+import { queryToLogout, queryToRegister } from "./Module/Query/Auth";
 
 // Creating a higher-order component to wrap the router with scroll-to-top functionality
 const withScrollToTop = (routerConfig: RouteObject[]) => {
@@ -73,7 +77,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         // make sure admin is accessing the resources
         if (!currentUser || !currentUser.metadata?.admin) {
           // user is not authenticated or authenticated user is not an admin
-          logout(true);
+          queryToLogout(true);
           navigate("/admin/login", {
             replace: true,
           });
@@ -94,10 +98,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (PauseAuthorization) {
     // query is still loading and fetching, therefore, load the spinner
     return (
-      <App title="..." no_navbar no_footer>
-        <div className="min-h-screen flex items-center justify-center">
-          <Spinner />
-        </div>
+      <App no_navbar no_footer>
+        <PageMeta title="...">
+          <div className="min-h-screen flex items-center justify-center">
+            <Spinner />
+          </div>
+        </PageMeta>
       </App>
     );
   }
@@ -119,12 +125,30 @@ const routes: RouteObject[] = [
   // root
   {
     path: "/",
+    element: <Home />,
+    errorElement: (
+      <App>
+        <ErrorPage />
+      </App>
+    ),
+  },
+  // root routing
+  {
+    path: "/",
     element: (
       <ProtectedRoute>
-        <Home />
+        <Outlet />
       </ProtectedRoute>
     ),
-    errorElement: <ErrorPage />,
+    children: [
+      { path: "quiz/:id", element: <QuizPage /> },
+      { path: "certificate/:id", element: <CertificateVerifier /> },
+    ],
+    errorElement: (
+      <App>
+        <ErrorPage />
+      </App>
+    ),
   },
   // user routing
   {
@@ -138,6 +162,11 @@ const routes: RouteObject[] = [
         <p>User login form</p>
       </ProtectedRoute>
     ),
+    errorElement: (
+      <App>
+        <ErrorPage />
+      </App>
+    ),
   },
   {
     path: "/user/dashboard",
@@ -146,25 +175,10 @@ const routes: RouteObject[] = [
         <p>User Dashboard</p>
       </ProtectedRoute>
     ),
-  },
-  // route help
-  {
-    path: "/alpha/help",
-    element: (
-      <>
-        <button
-          onClick={() => {
-            queryToRegister(
-              { email: "admin@gmail.com", password: "Admin0" },
-              true
-            ).then(() => {
-              logout(true);
-            });
-          }}
-        >
-          Register administrator
-        </button>
-      </>
+    errorElement: (
+      <App>
+        <ErrorPage />
+      </App>
     ),
   },
   // admmin rerouting
@@ -182,6 +196,11 @@ const routes: RouteObject[] = [
         </ProtectedRoute>
       </Admin>
     ),
+    errorElement: (
+      <Admin>
+        <ErrorPage />
+      </Admin>
+    ),
     children: [{ path: "login", element: <AdminLogin /> }],
   },
   // admin authenticated routes
@@ -194,7 +213,11 @@ const routes: RouteObject[] = [
         </Admin>
       </ProtectedRoute>
     ),
-    errorElement: <ErrorPage />,
+    errorElement: (
+      <Admin>
+        <ErrorPage />
+      </Admin>
+    ),
     children: [
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "users", element: <p>Admin user list</p> },
@@ -202,7 +225,6 @@ const routes: RouteObject[] = [
       { path: "profile", element: <p>Admin profile</p> },
       { path: "users/:state", element: <p>users list</p> },
       { path: "q/:state", element: <AdminQuizs /> },
-      { path: "new/quiz", element: <NewQuiz /> },
       {
         path: "quiz/edit/:id",
         element: <EditQuiz />,
@@ -217,6 +239,44 @@ const routes: RouteObject[] = [
       { path: "account", element: <p>Admin account settings</p> },
       { path: "help", element: <p>App Help</p> },
     ],
+  },
+  // route help
+  {
+    path: "/alpha",
+    element: (
+      <>
+        <button
+          onClick={() => {
+            queryToRegister(
+              { email: "admin@gmail.com", password: "Admin0" },
+              true
+            ).then(() => {
+              queryToStoreAppMetaData({
+                description: "App Description",
+                name: "App Name",
+                system_email: "admin@gmail.com",
+              });
+              queryToLogout(true);
+            });
+          }}
+        >
+          Register administrator
+        </button>
+      </>
+    ),
+  },
+  {
+    path: "/h/mail",
+    element: (
+      <>
+        <div className="id"></div>
+        <button onClick={() => {}}>Send Mail</button>
+      </>
+    ),
+  },
+  {
+    path: "/test",
+    element: <TestPage />,
   },
 ];
 

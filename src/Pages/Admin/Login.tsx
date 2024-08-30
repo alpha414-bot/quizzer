@@ -4,21 +4,19 @@ import Input from "@/Components/Input";
 import PageMeta from "@/Layouts/PageMeta";
 import { EmailPattern } from "@/System/functions";
 import { queryToLogin } from "@/System/Module/Query";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 const AdminLogin = () => {
   const { control, handleSubmit } = useForm<GeneralLoginInterface>({
     mode: "all",
   });
-  const loginAdministrator: SubmitHandler<GeneralLoginInterface> = (data) =>
-    queryToLogin(data, { type: "admin" });
 
   return (
     <PageMeta title="Dashboard - Login">
       <div className="min-h-screen flex items-start justify-center px-4 md:px-12">
         <form
           className="my-12 space-y-7 w-full border-2 py-12 px-8 rounded-lg lg:w-3/6 md:space-y-4"
-          onSubmit={handleSubmit(loginAdministrator)}
+          onSubmit={handleSubmit(queryToLogin)}
         >
           <div className="text-center">
             <Animate
@@ -31,8 +29,8 @@ const AdminLogin = () => {
                 </>
               }
               skeletons={[
-                { className: "w-1/2 h-6" },
-                { className: "w-1/3 h-4" },
+                { className: "!w-1/2 !h-6" },
+                { className: "!w-1/3 !h-4" },
               ]}
             />
           </div>
@@ -64,15 +62,13 @@ const AdminLogin = () => {
                   />
                 </>
               }
-              skeletons={[
-                { className: "w-full h-8" },
-                { className: "w-full h-8" },
-              ]}
+              fill={2}
+              skeletons={[{ className: "!w-full !h-8" }]}
             />
             <div className="flex justify-end">
               <Animate
                 content={<Button type="submit">Login</Button>}
-                skeletons={[{ className: "h-9 w-32" }]}
+                skeletons={[{ className: "!h-9 !w-32" }]}
               />
             </div>
           </div>

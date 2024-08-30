@@ -20,7 +20,7 @@ const Skeletons: React.FC<SkeletonProps> = ({
       className={
         resetClassName
           ? `${className}`
-          : `base-gray-300 dark:base-gray-700 mb-2 ${className}`
+          : `!base-gray-100 !highlight-zinc-300 mb-2 ${className}`
       }
     />
   );

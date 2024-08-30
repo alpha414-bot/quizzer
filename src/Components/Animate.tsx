@@ -13,8 +13,8 @@ const Animate: React.FC<AnimateInterfaceProps> = ({
   skeletons,
   fill,
   loading = false,
-  // timeout = 2000,
-  timeout = 5000,
+  // timeout = 0,
+  timeout = 2000,
 }) => {
   const [showContent, setShowContent] = useState<boolean>(false);
   const _timeout = () => {

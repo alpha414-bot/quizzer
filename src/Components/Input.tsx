@@ -88,7 +88,7 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
                       disabled
                         ? "bg-gray-200 cursor-not-allowed"
                         : "bg-gray-100 dark:bg-gray-700"
-                    } border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 ${
+                    } border-none outline-none text-gray-700 dark:text-white text-sm  rounded-lg ring-1 ring-transparent focus:ring-purple-500 checked:bg-purple-500 ${
                       props.type !== "checkbox" ? "block w-full" : ""
                     } ${className} `}
                     onFocus={handleFocus}
@@ -183,7 +183,7 @@ const Input = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
                 {CompleteFocus && (
                   <label
                     htmlFor={name}
-                    className={`absolute mb-0 text-gray-600 dark:text-white bg-gray-50/95 pl-4 pr-6 py-0.5 rounded-md origin-left transform scale-75 -top-4 left-1.5 transition-all duration-400 text-lg font-semibold shadow-md shadow-gray-500 ${
+                    className={`absolute mb-0 text-gray-600 bg-gray-50 pl-4 pr-6 py-0.5 rounded-md origin-left transform scale-75 -top-4 left-1.5 transition-all duration-400 text-lg font-semibold shadow shadow-gray-500 ${
                       CompleteFocus ? "opacity-100 -top-4" : "top-8 opacity-0"
                     }`}
                   >

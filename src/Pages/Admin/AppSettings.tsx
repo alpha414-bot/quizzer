@@ -36,7 +36,7 @@ const AdminAppSettings = () => {
                       App Settings
                     </h3>
                   }
-                  skeletons={[{ className: "w-44 h-9" }]}
+                  skeletons={[{ className: "!w-44 !h-9" }]}
                 />
               </div>
 
@@ -67,7 +67,7 @@ const AdminAppSettings = () => {
                         </>
                       }
                       fill={2}
-                      skeletons={[{ className: "w-full h-48" }]}
+                      skeletons={[{ className: "!w-full !h-48" }]}
                     />
                   </div>
                   <div className="flex flex-col justify-between space-y-3 lg:p-3">
@@ -95,16 +95,16 @@ const AdminAppSettings = () => {
                           </>
                         }
                         skeletons={[
-                          { className: "w-full h-8" },
-                          { className: "w-full h-28" },
-                          { className: "w-full h-8" },
+                          { className: "!w-full !h-8" },
+                          { className: "!w-full !h-28" },
+                          { className: "!w-full !h-8" },
                         ]}
                       />
                     </div>
                     <div className="flex justify-end">
                       <Animate
                         content={<Button type="submit">Save</Button>}
-                        skeletons={[{ className: "h-9 w-24" }]}
+                        skeletons={[{ className: "!h-9 !w-24" }]}
                       />
                     </div>
                   </div>

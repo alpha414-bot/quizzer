@@ -11,7 +11,7 @@ export default defineConfig({
       project: "quizzer",
     }),
   ],
-
+  assetsInclude: "**/*.psd",
   resolve: {
     alias: {
       "@": "/src",

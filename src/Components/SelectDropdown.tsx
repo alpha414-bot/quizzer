@@ -11,6 +11,7 @@ interface SelectDropdownInterface {
   defaultValue?: DropdownOptionsType;
   disableOptionKeys?: string[];
   defaultOptionKey?: string;
+  floating?: boolean;
   required?: boolean;
   onChange?: any;
   isFocused?: boolean;
@@ -27,6 +28,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
       options,
       disableOptionKeys,
       defaultOptionKey,
+      floating = true,
       required,
       onChange = () => {},
       isFocused,
@@ -97,10 +99,13 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                   return onBlur();
                 }
               };
-              // const CompleteFocus = !!value || !!TextInputRef?.current?.value;
+              // const CompleteFocus =
+              //   (!!value || focus || !!TextInputRef?.current?.value) &&
+              //   placeholder;
               const CompleteFocus =
-                (!!value || focus || !!TextInputRef?.current?.value) &&
-                placeholder;
+                (!!FieldValue || focus || !!TextInputRef?.current?.value) &&
+                placeholder &&
+                floating;
               return (
                 <div className="relative">
                   <div className="relative z-20">
@@ -265,7 +270,7 @@ const SelectDropdown = forwardRef<HTMLInputElement, SelectDropdownInterface>(
                       </div>
                     )}
                   </div>
-                  {CompleteFocus && placeholder && (
+                  {CompleteFocus && (
                     <label
                       htmlFor={name}
                       className={`absolute z-30 mb-0 text-gray-600 dark:text-white bg-gray-100 dark:bg-gray-700 pl-4 pr-6 py-0.5 rounded-md origin-left transform scale-75 -top-4 left-1.5 transition-all duration-400 text-lg font-semibold shadow-md shadow-gray-500 ${

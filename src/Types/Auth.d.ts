@@ -10,6 +10,9 @@ interface UserMetaDataInterface {
   role: "admin" | "user" | "guet";
   displayName?: string;
   uid: string;
+
+  first_name?: string;
+  last_name?: string;
 }
 
 interface NewAuthUser extends User {

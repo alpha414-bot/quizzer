@@ -8,15 +8,17 @@ interface ImgInterface
   > {
   type?: "image" | "background";
   child?: React.ReactNode;
+  public_dir?: boolean;
 }
 
 const Img: React.FC<ImgInterface> = ({
   type = "image",
   child,
+  public_dir = false,
   src,
   ...props
 }) => {
-  const { data: path, isFetched } = useMediaFile(src);
+  const { data: path, isFetched } = useMediaFile(src, public_dir);
   if (type === "image") {
     return (
       <>

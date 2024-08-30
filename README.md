@@ -27,3 +27,6 @@ Admin Dashboard
 5) Admin has a feature to check pass and fail students.
 6) Automatic certificate with QR code will be sent to pass users.
 7) User can verify their certificate in real time with the QR code.
+
+Can user take the quiz continuously or just once? 1 quiz one time only
+And would they have an accounts/dashboard whereby they can come back and check their results and past quizs? They can have their account dashboard

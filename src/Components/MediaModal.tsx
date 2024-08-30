@@ -1,13 +1,13 @@
 import { auth } from "@/firebase-config";
 import { getFileExtension, MIME_TYPE } from "@/System/functions";
 import { useUserMedia } from "@/System/Module/Hook";
-import { queryToUploadFiles } from "@/System/Module/Query";
-import { Modal } from "flowbite";
+import { InstanceOptions, Modal } from "flowbite";
 import _ from "lodash";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import { FileError, useDropzone } from "react-dropzone";
 import { Control, Controller, RegisterOptions } from "react-hook-form";
 import MediaComponent from "./MediaComponent";
+import { queryToUploadFiles } from "@/System/Module/Query/Media";
 
 type MediaMimeType = "image" | "video" | "document" | "others";
 
@@ -16,7 +16,7 @@ const MediaModal: React.FC<{
   name: string;
   placeholder?: string;
   control: Control;
-  align?: "col" | "row";
+  align?: "col" | "row" | "col-reverse" | "row-reverse";
   rules?: RegisterOptions;
 }> = ({
   name,
@@ -79,9 +79,11 @@ const MediaModal: React.FC<{
   mediaType = _.map(mediaType, _.lowerCase) as MediaMimeType[];
   // set the modal menu element
   useLayoutEffect(() => {
-    const $targetEl = document.getElementById(`${name}MediaModal`);
+    const $targetEl: HTMLElement | null = document.getElementById(
+      `${name}MediaModal`
+    );
     // instance options object
-    const instanceOptions = {
+    const instanceOptions: InstanceOptions = {
       id: "mediaModal",
       override: true,
     };
@@ -97,6 +99,7 @@ const MediaModal: React.FC<{
       instanceOptions
     );
     setModal(modalInstance);
+    return modalInstance.hide();
   }, [medias]);
   // }, []);
   return (
@@ -110,7 +113,9 @@ const MediaModal: React.FC<{
       }) => {
         return (
           <>
-            <div className={`p-3 flex flex-col items-stretch gap-4 md:flex-${align}-reverse md:p-0`}>
+            <div
+              className={`p-3 flex flex-col items-stretch gap-4 md:flex-${align} md:p-0`}
+            >
               <button
                 id={`${name}MediaButton`}
                 onClick={() => {

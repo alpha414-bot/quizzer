@@ -20,7 +20,7 @@ const Navbar = () => {
                 </p>
               )
             }
-            skeletons={[{ className: "w-16 h-16 rounded-full" }]}
+            skeletons={[{ className: "!w-16 !h-16 !rounded-full" }]}
           />
         </Link>
         <button
@@ -79,7 +79,7 @@ const Navbar = () => {
                     {item.title}
                   </NavLink>
                 }
-                skeletons={[{ className: "h-6 w-20" }]}
+                skeletons={[{ className: "!h-6 !w-20" }]}
               />
             );
           } else {
@@ -100,7 +100,7 @@ const Navbar = () => {
                     Login
                   </NavLink>
                 }
-                skeletons={[{ className: "h-6 w-20" }]}
+                skeletons={[{ className: "!h-6 !w-20" }]}
               />
             );
           }

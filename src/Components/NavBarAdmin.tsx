@@ -1,5 +1,5 @@
 import { useApp, useAuthUser } from "@/System/Module/Hook";
-import { logout } from "@/System/Module/Query";
+import { queryToLogout } from "@/System/Module/Query/Auth";
 import { Link } from "react-router-dom";
 import Animate from "./Animate";
 import Img from "./Img";
@@ -37,7 +37,7 @@ const NavBarAdmin = () => {
                     <span className="sr-only">Toggle sidebar</span>
                   </button>
                 }
-                skeletons={[{ className: "w-8 h-8 mr-0.5" }]}
+                skeletons={[{ className: "!w-8 !h-8 !mr-0.5" }]}
               />
               <Link
                 to="dashboard"
@@ -50,7 +50,7 @@ const NavBarAdmin = () => {
                         Logo is here
                       </span>
                     }
-                    skeletons={[{ className: "w-20 h-5 md:w-36 md:h-10" }]}
+                    skeletons={[{ className: "!w-20 !h-5 md:!w-36 md:!h-10" }]}
                   />
                 )) || (
                   <Animate
@@ -61,7 +61,7 @@ const NavBarAdmin = () => {
                         alt={`${app?.name} Logo`}
                       />
                     }
-                    skeletons={[{ className: "w-20 h-10" }]}
+                    skeletons={[{ className: "!w-20 !h-10" }]}
                   />
                 )}
               </Link>
@@ -141,9 +141,9 @@ const NavBarAdmin = () => {
                   </>
                 }
                 skeletons={[
-                  { className: "w-8 h-8 ml-1" },
-                  { className: "w-8 h-8 ml-1" },
-                  { className: "w-8 h-8 ml-1 rounded-full" },
+                  { className: "!w-8 !h-8 !ml-1" },
+                  { className: "!w-8 !h-8 !ml-1" },
+                  { className: "!w-8 !h-8 !ml-1 !rounded-full" },
                 ]}
               />
               {/* Notification Dropdown menu */}
@@ -508,7 +508,7 @@ const NavBarAdmin = () => {
                     to="/logout"
                     onClick={(e) => {
                       e.preventDefault();
-                      logout();
+                      queryToLogout();
                     }}
                     className="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 group"
                   >
@@ -576,7 +576,7 @@ const NavBarAdmin = () => {
                       to="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        logout();
+                        queryToLogout();
                       }}
                       className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
@@ -714,18 +714,18 @@ const NavBarAdmin = () => {
                 <ul id="dropdown-sales" className="hidden py-2 space-y-2">
                   <li>
                     <Link
-                      to="q/:all"
-                      className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
-                      All
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
                       to="q/:active"
                       className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                     >
                       Active
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="q/:draft"
+                      className="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                    >
+                      Draft
                     </Link>
                   </li>
                   <li>

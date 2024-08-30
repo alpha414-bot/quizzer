@@ -38,7 +38,7 @@ notify.error = (
   return toast.error(
     <ToastWrapper
       title={title || "Error"}
-      text={`${text}${error && `<br/><br/><small>${error}</small>`}`}
+      text={`${text}${error ? `<br/><br/><small>${error}</small>` : ""}`}
       {...myProps}
     />,
     {

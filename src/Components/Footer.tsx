@@ -7,7 +7,7 @@ const Footer = () => {
   const { data: currentUser } = useAuthUser();
   const { data: app, isFetched: appDataIsFetched } = useApp();
   return (
-    <div className="flex flex-col items-center justify-between pt-5 pb-8 md:flex-row">
+    <div className="flex flex-col items-center justify-between pt-5 pb-8 px-4 md:flex-row">
       <div className="md:min-w-48">
         {app?.name && appDataIsFetched && (
           <Animate
@@ -17,11 +17,11 @@ const Footer = () => {
                 Reserved
               </p>
             }
-            skeletons={[{ className: "w-full h-5" }]}
+            skeletons={[{ className: "!w-full !h-5" }]}
           />
         )}
       </div>
-      <ol className="flex flex-wrap items-center justify-center gap-4">
+      <ol className="flex flex-wrap items-center justify-center gap-2">
         {[
           { to: "/", title: "Home" },
           {
@@ -50,7 +50,7 @@ const Footer = () => {
                     {item.title}
                   </NavLink>
                 }
-                skeletons={[{ className: "w-16 h-4" }]}
+                skeletons={[{ className: "!w-16 !h-4" }]}
               />
             );
           }

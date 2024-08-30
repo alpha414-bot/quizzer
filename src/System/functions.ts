@@ -1,4 +1,9 @@
-import { QuizDataInterface, QuizQuestionsInterface } from "@/Types/Module";
+import {
+  MailDataInterface,
+  QuizDataInterface,
+  QuizQuestionsInterface,
+} from "@/Types/Module";
+import emailjs from "@emailjs/browser";
 import escapeHtml from "escape-html";
 import { AuthError } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
@@ -172,6 +177,7 @@ export const quizTo = (obj: any): QuizDataInterface => {
         id: id,
         question: obj[questionKey],
         score: Number(obj[`${questionKey}/score`]),
+        invisible: !!obj[`${questionKey}/invisible`],
         answer: obj[`${questionKey}/answer`],
       };
       result.push(question);
@@ -187,6 +193,7 @@ export const quizToForm = (obj?: QuizQuestionsInterface[]) => {
       result[`question_${item.id}/id`] = item.id;
       result[`question_${item.id}`] = item.question;
       result[`question_${item.id}/score`] = Number(item.score).toString();
+      // result[`question_${item.id}/invisible`] = !!item.invisible;
       result[`question_${item.id}/answer`] = item.answer;
     });
   }
@@ -384,4 +391,59 @@ export const deserialize = (el: any): any => {
   }
 
   return children;
+};
+
+/// Handle mail handle
+export const sendMail = (data: MailDataInterface) =>
+  new Promise((resolve, reject) => {
+    emailjs
+      .send(
+        "service_default_quiz",
+        "template_quizzer",
+        { ...data },
+        {
+          publicKey: "pIwotxEsvTYXtdHgP",
+        }
+      )
+      .then((data: any) => {
+        console.log("data", data);
+        resolve(data);
+      })
+      .catch((err: any) => {
+        console.log(err, err);
+        reject(err);
+      });
+  });
+
+function sha256(string: any) {
+  // Simple SHA-256 hashing algorithm
+  let hashedString = "";
+  for (let i = 0; i < string.length; i++) {
+    const charCode = string.charCodeAt(i);
+    hashedString += String.fromCharCode(
+      (charCode & 0xff00) >> 8,
+      charCode & 0xff
+    );
+  }
+  return hashedString;
+}
+export const hashed = (string: string) => {
+  // Apply a simple hashing algorithm (SHA-256)
+  const hashedString = sha256(string);
+  // Prepare the object option
+  const objectOption = [hashedString];
+  // Create the encrypted array
+  const encryptArray = JSON.stringify([hashedString, objectOption]);
+  return encryptArray;
+};
+
+export const unhashed = (object: any) => {
+  if (!object) {
+    object = {};
+  }
+  const obj = object;
+  // const obj = typeof object == "object" ? JSON.parse(object) : object;
+  const hashedString = obj[0];
+  // You cannot reverse a one-way hash, so return the hashed string as is
+  return _.replace(hashedString, /\u0000/g, "");
 };

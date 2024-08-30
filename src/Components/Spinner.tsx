@@ -1,10 +1,13 @@
+import { useApp } from "@/System/Module/Hook";
+import Img from "./Img";
+
 interface SpinnerProps {
   className?: string;
   text?: string;
 }
 
 const Spinner: React.FC<SpinnerProps> = ({ className = "w-10 h-10" }) => {
-  // import logo using query from storage
+  const { data: app, isFetched: appDataIsFetched } = useApp();
   return (
     <div
       role="status"
@@ -26,9 +29,15 @@ const Spinner: React.FC<SpinnerProps> = ({ className = "w-10 h-10" }) => {
           fill="currentFill"
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center bg-transparent my-0.5 mx-auto w-[90%]">
-        <img src="/vite.svg" alt="logo " className="absolute" />
-      </div>
+      {!(!app?.logo || !appDataIsFetched) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-transparent my-0.5 mx-auto w-[90%] p-4">
+          <Img
+            src={app?.logo?.media.fullPath}
+            className="w-full object-contain rounded-full"
+            alt={`${app?.name} Logo`}
+          />
+        </div>
+      )}
     </div>
   );
 };
