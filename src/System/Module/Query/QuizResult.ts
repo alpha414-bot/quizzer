@@ -54,11 +54,7 @@ export const queryToAddResult = (data: QuizDataResult) =>
               role: "user",
               admin: false,
               password: hashed(password),
-            }).then(() => {
-              // next create necessary certificate
-
-              queryToLogout(true);
-            });
+            })
           });
         }
         addDoc(QuizResultCollection, {
@@ -66,7 +62,10 @@ export const queryToAddResult = (data: QuizDataResult) =>
           ...{ uid: User?.uid },
           ...{ createdAt: Timestamp.now(), updatedAt: Timestamp.now() },
         })
-          .then(resolve)
+          .then((resp) => {
+            resolve(resp);
+            queryToLogout(true);
+          })
           .catch((err) => {
             reject(err);
             notify.error(
@@ -94,7 +93,10 @@ export const queryToAddResult = (data: QuizDataResult) =>
  * @param listener subscribing to firestore snapshot
  * @returns passed as argument
  */
-export const queryToGetResult = <T>(listener?: any, id?: string): Promise<T> =>
+export const queryToGetResult = <T>(
+  listener = (e: any) => e,
+  id?: string
+): Promise<T> =>
   new Promise((resolve, reject) => {
     try {
       // onSnapshot would be used in frequent mode, so I am handling all the errors in this container

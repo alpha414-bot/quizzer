@@ -1,27 +1,38 @@
-import { useAuthUser } from "@/System/Module/Hook";
+import { useApp, useAuthUser } from "@/System/Module/Hook";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import Animate from "./Animate";
+import Img from "./Img";
 
 const Navbar = () => {
   const [onMobileShowMenu, setOnMobileShowMenu] = useState<boolean>(false);
   const { data: currentUser } = useAuthUser();
+  const { data: app, isFetched: appDataIsFetched } = useApp();
   return (
     <nav className="relative flex flex-col items-stretch justify-center text-xl py-1 gap-y-8 md:flex-row lg:py-12 md:justify-between">
       <div className="flex items-center justify-between">
-        <Link to="/">
-          <Animate
-            content={
-              false ? (
-                <img src="/vite.svg" className="w-16" />
-              ) : (
-                <p className="self-center text-2xl font-semibold whitespace-nowrap">
+        <Link to="/" className="flex items-center justify-between mr-4">
+          {((!app?.logo || !appDataIsFetched) && (
+            <Animate
+              content={
+                <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white md:text-2xl">
                   Logo is here
-                </p>
-              )
-            }
-            skeletons={[{ className: "!w-16 !h-16 !rounded-full" }]}
-          />
+                </span>
+              }
+              skeletons={[{ className: "!w-20 !h-5 md:!w-36 md:!h-10" }]}
+            />
+          )) || (
+            <Animate
+              content={
+                <Img
+                  src={app?.logo?.media.fullPath}
+                  className="max-w-20 max-h-10 object-contain"
+                  alt={`${app?.name} Logo`}
+                />
+              }
+              skeletons={[{ className: "!w-20 !h-10" }]}
+            />
+          )}
         </Link>
         <button
           className="block md:hidden"

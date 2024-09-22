@@ -319,6 +319,7 @@ const QuizPage = () => {
       <PageMeta title={`${quiz?.title || ""} - Quiz`}>
         <div className="min-h-screen flex items-start md:px-12 overflow-x-hidden seect-none">
           <div className="relative w-full z-50">
+            {form}
             <form
               onSubmit={handleSubmit(QuizFormSubmit)}
               className="pt-4 pb-4 px-4 h-full z-20 space-y-6"

@@ -46,7 +46,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           transition={Slide}
         />
         <RouterProvider router={router} />
-        <ReactQueryDevtools />
+        {/* <ReactQueryDevtools /> */}
         {/* </PersistQueryClientProvider> */}
       </QueryClientProvider>
     </HelmetProvider>

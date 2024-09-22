@@ -3,7 +3,7 @@ import Button from "@/Components/Button";
 import Input from "@/Components/Input";
 import PageMeta from "@/Layouts/PageMeta";
 import { EmailPattern } from "@/System/functions";
-import { queryToLogin } from "@/System/Module/Query";
+import { queryToLogin } from "@/System/Module/Query/Auth";
 import { useForm } from "react-hook-form";
 
 const AdminLogin = () => {

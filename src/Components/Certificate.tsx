@@ -66,8 +66,11 @@ const Certificate: React.FC<CertificatePropsInterface> = ({
                 </span>
               </div>
             </div>
-            <div className="grow flex flex-col justify-end gap-4">
-              <Img src="/sign.png" public_dir className="max-w-56" />
+            <div className="grow flex flex-col justify-end gap-2">
+              <div
+                className="relative w-52 h-20 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: 'url("/sign.png")' }}
+              />
               <div style={{ fontFamily: "Quicksand" }}>
                 <p className="text-xl font-bold">Micheal Lucas</p>
                 <p className="text-xl leading-none font-medium">CEO</p>

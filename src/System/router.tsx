@@ -7,7 +7,6 @@ import AdminDashboard from "@/Pages/Admin/Dashboard";
 import EditQuiz from "@/Pages/Admin/EditQuiz";
 import AdminLogin from "@/Pages/Admin/Login";
 import AdminQuizs from "@/Pages/Admin/Quizs";
-import SubQuestionOutlet from "@/Pages/Admin/SubQuestionOutlet";
 import ErrorPage from "@/Pages/ErrorPage";
 import Home from "@/Pages/Home";
 import CertificateVerifier from "@/Pages/Quiz/CertificateVerifier";
@@ -228,7 +227,6 @@ const routes: RouteObject[] = [
       {
         path: "quiz/edit/:id",
         element: <EditQuiz />,
-        children: [{ path: ":question_id", element: <SubQuestionOutlet /> }],
       },
       { path: "quizzes", element: <p>Quizzes</p> },
       { path: "app/settings", element: <AdminAppSettings /> },
